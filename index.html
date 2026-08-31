@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Pärmen — digitalt minne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1c1a17; --surface:#252220; --surface-raised:#2e2a26;
+    --ink:#ece5d6; --ink-dim:#a89f8f;
+    --rust:#bd5a2a; --rust-dim:#8a4420;
+    --olive:#6f7d4f; --slate:#55707c; --danger:#a83f3f;
+    --line:#3d382f; --ring:#100f0d;
+    --font-display:'Oswald',sans-serif; --font-body:'IBM Plex Sans',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background:var(--bg); color:var(--ink); font-family:var(--font-body); -webkit-font-smoothing:antialiased; padding-bottom:96px; }
+  body::before{
+    content:""; position:fixed; top:0; left:0; bottom:0; width:14px;
+    background:repeating-linear-gradient(180deg, var(--ring) 0 8px, transparent 8px 34px);
+    background-color:#151310; box-shadow:2px 0 6px rgba(0,0,0,.4); z-index:5;
+  }
+  .app{ margin-left:14px; }
+
+  header{
+    padding:22px 18px 14px 22px; border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, var(--surface), var(--bg));
+    display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+  }
+  .brand{ font-family:var(--font-display); font-size:28px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; }
+  .brand span{ color:var(--rust); }
+  .subtitle{ font-family:var(--font-mono); font-size:11px; color:var(--ink-dim); letter-spacing:.5px; margin-top:2px; display:flex; align-items:center; gap:6px; }
+  .dot{ width:6px; height:6px; border-radius:50%; background:var(--danger); display:inline-block; }
+  .dot.ok{ background:var(--olive); }
+  .header-icons{ display:flex; gap:8px; flex-shrink:0; margin-top:2px; }
+  .icon-btn{
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:.5px; color:var(--ink-dim);
+    background:var(--surface-raised); border:1px solid var(--line); border-radius:14px; padding:6px 11px; text-transform:uppercase;
+  }
+
+  nav.tabs{ display:flex; gap:6px; padding:12px 12px 0 20px; overflow-x:auto; background:var(--bg); scrollbar-width:none; }
+  nav.tabs::-webkit-scrollbar{display:none;}
+  .tab{
+    flex:0 0 auto; font-family:var(--font-display); font-size:13px; letter-spacing:1px; text-transform:uppercase;
+    color:var(--ink-dim); background:var(--surface); border:1px solid var(--line); border-bottom:none;
+    padding:10px 16px 12px; clip-path:polygon(8% 0,92% 0,100% 100%,0% 100%); cursor:pointer; transition:.15s;
+  }
+  .tab.active{ color:var(--bg); background:var(--rust); border-color:var(--rust); }
+
+  main{ padding:16px 14px 8px 20px; }
+  .panel{ display:none; animation:fade .2s ease; }
+  .panel.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
+
+  .section-label{
+    font-family:var(--font-display); font-size:12px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--ink-dim); margin:22px 0 8px; display:flex; align-items:center; gap:8px;
+  }
+  .section-label:first-child{ margin-top:4px; }
+  .section-label::after{ content:""; flex:1; height:1px; background:var(--line); }
+
+  .card{ background:var(--surface); border:1px solid var(--line); border-radius:3px; padding:12px 14px; margin-bottom:8px; cursor:pointer; }
+  .card:active{ background:var(--surface-raised); }
+  .row{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .item-title{ font-weight:600; font-size:14.5px; }
+  .item-meta{ font-family:var(--font-mono); font-size:11px; color:var(--ink-dim); margin-top:3px; }
+
+  .stamp{
+    font-family:var(--font-display); font-size:10.5px; letter-spacing:1px; text-transform:uppercase;
+    padding:3px 7px; border:1.5px solid currentColor; border-radius:2px; transform:rotate(-3deg); white-space:nowrap; flex-shrink:0;
+  }
+  .stamp.late{ color:var(--danger); } .stamp.soon{ color:var(--rust); } .stamp.ok{ color:var(--olive); } .stamp.info{ color:var(--slate); }
+
+  .empty-note{ font-family:var(--font-mono); font-size:12px; color:var(--ink-dim); padding:8px 2px 4px; }
+
+  .progress-track{ height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:8px; }
+  .progress-fill{ height:100%; background:var(--olive); }
+
+  .detail{ display:none; margin-top:6px; margin-bottom:14px; border-left:2px solid var(--rust); padding-left:12px; }
+  .detail.open{ display:block; }
+  .milestones{ display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .milestone{ font-family:var(--font-mono); font-size:10.5px; padding:3px 8px; border-radius:12px; background:var(--surface-raised); color:var(--ink-dim); border:1px solid var(--line); cursor:pointer; }
+  .milestone.done{ color:var(--bg); background:var(--olive); border-color:var(--olive); }
+  .milestone.current{ color:var(--bg); background:var(--rust); border-color:var(--rust); }
+
+  .log-entry{ font-size:13px; padding:8px 0; border-top:1px dashed var(--line); }
+  .log-entry:first-of-type{ border-top:none; }
+  .log-time{ font-family:var(--font-mono); font-size:10.5px; color:var(--rust); display:block; margin-bottom:2px; }
+
+  .log-input{ display:flex; gap:6px; margin-top:10px; }
+  .log-input input{ flex:1; background:var(--bg); border:1px solid var(--line); color:var(--ink); padding:8px 10px; border-radius:3px; font-family:var(--font-body); font-size:13px; }
+  .log-input button, .add-btn{
+    font-family:var(--font-display); text-transform:uppercase; letter-spacing:.5px; font-size:12px;
+    background:var(--rust); color:var(--bg); border:none; padding:8px 14px; border-radius:3px;
+  }
+
+  .checklist{ margin:8px 0 4px; }
+  .checklist label{ display:flex; align-items:center; gap:8px; font-size:13px; padding:5px 0; color:var(--ink-dim); }
+  .checklist input[type=checkbox]{ accent-color:var(--olive); width:15px; height:15px; }
+  .checklist input:checked + span{ color:var(--ink); text-decoration:line-through; text-decoration-color:var(--olive); }
+
+  .costs{ font-family:var(--font-mono); font-size:12px; margin-top:8px; color:var(--ink-dim); }
+  .costs .total{ color:var(--ink); font-weight:600; margin-top:4px; border-top:1px solid var(--line); padding-top:4px; }
+
+  .gallery{ display:flex; gap:8px; margin:10px 0; overflow-x:auto; }
+  .thumb{
+    flex:0 0 auto; width:64px; height:64px; border-radius:4px;
+    background:var(--surface-raised); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .thumb svg{ width:22px; height:22px; fill:var(--ink-dim); }
+  .thumb.add{ color:var(--rust); border-style:dashed; border-color:var(--rust-dim); position:relative; }
+  .thumb.add svg{ fill:var(--rust); }
+  .thumb.uploading{ opacity:.5; }
+
+  .doc-list{ margin:10px 0; }
+  .doc-item{
+    display:flex; align-items:center; gap:9px; padding:7px 0;
+    border-top:1px dashed var(--line); font-size:12.5px; color:var(--ink-dim);
+  }
+  .doc-item:first-child{ border-top:none; }
+  .doc-item svg{ width:15px; height:15px; fill:var(--slate); flex-shrink:0; }
+  .doc-item a{ color:var(--ink); text-decoration:none; flex:1; }
+  .doc-add-btn{
+    font-family:var(--font-mono); font-size:11.5px; color:var(--rust);
+    background:var(--surface-raised); border:1px dashed var(--rust-dim);
+    border-radius:4px; padding:8px 10px; text-align:center; cursor:pointer; margin-top:4px; display:block;
+  }
+
+  .inbox-item{ background:var(--surface); border:1px solid var(--line); border-radius:3px; padding:10px 12px; margin-bottom:8px; }
+  .inbox-text{ font-size:13.5px; }
+  .inbox-suggest{ margin-top:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .inbox-suggest span.label{ font-family:var(--font-mono); font-size:11px; color:var(--ink-dim); }
+  .pill{ font-family:var(--font-mono); font-size:11.5px; background:var(--surface-raised); border:1px solid var(--rust); color:var(--rust); padding:4px 9px; border-radius:12px; cursor:pointer; }
+  .pill.ghost{ border-color:var(--line); color:var(--ink-dim); }
+
+  .widget-preview{ display:flex; align-items:center; gap:14px; cursor:pointer; }
+  .widget-icon{ width:60px; height:60px; border-radius:16px; background:var(--rust); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .widget-icon svg{ width:26px; height:26px; fill:var(--bg); }
+  .widget-text .wtitle{ font-family:var(--font-display); text-transform:uppercase; letter-spacing:1px; font-size:14px; }
+  .widget-text .wsub{ font-family:var(--font-mono); font-size:11px; color:var(--ink-dim); margin-top:3px; }
+
+  .chat{ display:flex; flex-direction:column; gap:10px; margin-bottom:6px; max-height:50vh; overflow-y:auto; }
+  .chat-msg{ max-width:88%; font-size:13.5px; padding:10px 12px; border-radius:10px; line-height:1.4; }
+  .chat-msg.ai{ align-self:flex-start; background:var(--surface); border:1px solid var(--line); border-bottom-left-radius:2px; }
+  .chat-msg.user{ align-self:flex-end; background:var(--rust); color:var(--bg); font-weight:500; border-bottom-right-radius:2px; }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+  .chip{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-dim); background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:7px 12px; cursor:pointer; }
+  .chip:active{ background:var(--surface-raised); }
+
+  .fab{ position:fixed; right:18px; bottom:22px; z-index:20; width:58px; height:58px; border-radius:50%; background:var(--rust); border:none; box-shadow:0 6px 16px rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; }
+  .fab svg{ width:24px; height:24px; fill:var(--bg); }
+  .fab.listening{ animation:pulse 1.2s infinite; }
+
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(10,9,7,.72); display:none; align-items:flex-end; z-index:30; }
+  .modal-backdrop.open{ display:flex; }
+  .modal{ width:100%; max-height:88vh; overflow-y:auto; background:var(--surface); border-top:1px solid var(--line); border-radius:14px 14px 0 0; padding:22px 20px 26px; text-align:center; }
+  .mic-pulse{ width:64px; height:64px; margin:6px auto 14px; border-radius:50%; background:var(--rust); display:flex; align-items:center; justify-content:center; animation:pulse 1.2s infinite; }
+  .mic-pulse svg{ width:26px; height:26px; fill:var(--bg); }
+  @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(189,90,42,.5);} 70%{box-shadow:0 0 0 16px rgba(189,90,42,0);} 100%{box-shadow:0 0 0 0 rgba(189,90,42,0);} }
+  .modal-label{ font-family:var(--font-mono); font-size:11px; color:var(--ink-dim); }
+  .modal-transcript{ font-size:15.5px; margin:10px 0 16px; min-height:24px; }
+  .parse-result{ display:none; text-align:left; margin-top:14px; border-top:1px solid var(--line); padding-top:10px; }
+  .parse-result.show{ display:block; }
+  .parse-row{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:13px; padding:6px 0; border-top:1px dashed var(--line); }
+  .parse-row:first-child{ border-top:none; }
+  .parse-label{ font-family:var(--font-mono); font-size:10px; color:var(--rust); letter-spacing:.5px; flex-shrink:0; }
+  .parse-row span:last-child{ text-align:right; }
+  .modal-close{ margin-top:16px; background:none; border:1px solid var(--line); color:var(--ink-dim); font-family:var(--font-mono); font-size:12px; padding:8px 16px; border-radius:20px; }
+  .modal input, .modal select, .modal textarea{
+    width:100%; background:var(--bg); border:1px solid var(--line); color:var(--ink); padding:9px 10px;
+    border-radius:4px; font-family:var(--font-body); font-size:14px; margin-bottom:8px; text-align:left;
+  }
+  .modal label.field-label{ display:block; text-align:left; font-family:var(--font-mono); font-size:10.5px; color:var(--ink-dim); margin:8px 0 3px; }
+  .error-msg{ color:var(--danger); font-size:12.5px; font-family:var(--font-mono); margin-top:8px; }
+
+  #gateScreen{
+    position:fixed; inset:0; z-index:100; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .gate-box{ width:100%; max-width:320px; text-align:center; }
+  .gate-box .brand{ font-size:26px; margin-bottom:4px; }
+  .gate-box .subtitle{ justify-content:center; margin-bottom:20px; }
+  body.authed #gateScreen{ display:none; }
+  body:not(.authed) .app, body:not(.authed) .fab{ display:none !important; }
+
+  /* visningsläge (viewer-PIN, inte editor) — dölj/lås allt som skriver till databasen */
+  body.viewer-mode .add-btn,
+  body.viewer-mode .log-input,
+  body.viewer-mode .doc-add-btn,
+  body.viewer-mode .thumb.add,
+  body.viewer-mode .header-icons .icon-btn.action,
+  body.viewer-mode .pill,
+  body.viewer-mode .qty-btn,
+  body.viewer-mode .fab,
+  body.viewer-mode .widget-preview{ display:none !important; }
+  body.viewer-mode input[type=checkbox],
+  body.viewer-mode .milestone{ pointer-events:none; opacity:.55; }
+  .lock-btn.is-editor{ color:var(--olive); border-color:var(--olive); }
+</style>
+</head>
+<body>
+
+<div id="gateScreen">
+  <div class="gate-box">
+    <div class="brand">P&Auml;R<span>M</span>EN</div>
+    <div class="subtitle">L&Aring;ST &middot; ANGE PIN F&Ouml;R &Aring;TKOMST</div>
+    <input type="password" id="gatePinInput" placeholder="PIN" inputmode="numeric" onkeydown="if(event.key==='Enter')submitGatePin();">
+    <button class="add-btn" style="width:100%;padding:12px;" onclick="submitGatePin()">L&aring;s upp</button>
+    <div class="error-msg" id="gatePinError" style="display:none;"></div>
+  </div>
+</div>
+
+<div class="app">
+  <header>
+    <div>
+      <div class="brand">P&Auml;R<span>M</span>EN</div>
+      <div class="subtitle"><span class="dot" id="connDot"></span><span id="connLabel">ansluter...</span></div>
+    </div>
+    <div class="header-icons">
+      <button class="icon-btn action" onclick="openOnboarding()">Guide</button>
+      <button class="icon-btn action" onclick="openWeekly()">Koll</button>
+      <button class="icon-btn" onclick="openModal('calendarModal')">Kalender</button>
+      <button class="icon-btn lock-btn" id="lockBtn" onclick="handleLockClick()">Lås upp</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <div class="tab active" data-tab="idag">Idag</div>
+    <div class="tab" data-tab="projekt">Projekt</div>
+    <div class="tab" data-tab="underhall">Underh&aring;ll</div>
+    <div class="tab" data-tab="inkop">Ink&ouml;p</div>
+    <div class="tab" data-tab="fraga">Fr&aring;ga</div>
+    <div class="tab" data-tab="inkorg">Inkorg <span id="inkorgCount" style="color:var(--rust)"></span></div>
+  </nav>
+
+  <main>
+
+    <section class="panel active" id="idag">
+      <div class="card widget-preview" onclick="openVoice()">
+        <div class="widget-icon"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg></div>
+        <div class="widget-text">
+          <div class="wtitle">Fickminnet</div>
+          <div class="wsub">T&auml;nk &rarr; tryck &rarr; prata &rarr; klart</div>
+        </div>
+      </div>
+      <div id="idagContent"><div class="empty-note">Laddar...</div></div>
+    </section>
+
+    <section class="panel" id="projekt">
+      <div class="section-label">Projekt</div>
+      <div id="projektList"><div class="empty-note">Laddar...</div></div>
+      <button class="add-btn" style="margin-top:10px;width:100%;padding:12px;" onclick="openAddProject()">+ Nytt projekt</button>
+    </section>
+
+    <section class="panel" id="underhall">
+      <div class="section-label">Fordon, maskiner &amp; utrustning</div>
+      <div id="equipmentList"><div class="empty-note">Laddar...</div></div>
+
+      <div class="section-label">&Aring;terkommande checklistor</div>
+      <div id="templateList"><div class="empty-note">Inga mallar &auml;n.</div></div>
+      <button class="add-btn" style="margin-top:6px;" onclick="openAddTemplate()">+ Ny mall</button>
+
+      <button class="add-btn" style="margin-top:14px;width:100%;padding:12px;" onclick="openAddEquipment()">+ Registrera nytt</button>
+    </section>
+
+    <section class="panel" id="inkop">
+      <div class="section-label">Ink&ouml;pslista</div>
+      <div id="shoppingList"><div class="empty-note">Laddar...</div></div>
+      <div class="log-input" style="margin-top:14px;">
+        <input type="text" id="shopInput" placeholder="L&auml;gg till p&aring; listan...">
+        <button onclick="addShoppingItem()">L&auml;gg till</button>
+      </div>
+
+      <div class="section-label">I f&ouml;rr&aring;det</div>
+      <div id="inventoryList"><div class="empty-note">Laddar...</div></div>
+      <button class="add-btn" style="margin-top:10px;" onclick="openAddInventory()">+ Nytt f&ouml;rr&aring;dsobjekt</button>
+    </section>
+
+    <section class="panel" id="fraga">
+      <div class="section-label">Fr&aring;ga P&auml;rmen</div>
+      <div class="chat" id="chatLog">
+        <div class="chat-msg ai">Fr&aring;ga vad som helst om dina projekt, fordon eller ink&ouml;p. Jag svarar utifr&aring;n det som faktiskt finns registrerat.</div>
+      </div>
+      <div class="chip-row">
+        <div class="chip" onclick="askAI('Vad har jag f&ouml;r projekt som jag inte gjort n&aring;got med p&aring; l&auml;nge?')">Vad har jag glömt?</div>
+        <div class="chip" onclick="askAI('Vad beh&ouml;ver jag k&ouml;pa just nu?')">Vad ska jag köpa?</div>
+        <div class="chip" onclick="askAI('Vilket fordon beh&ouml;ver service snarast?')">Vad behöver service?</div>
+      </div>
+      <div class="log-input" style="margin-top:14px;">
+        <input type="text" id="chatInput" placeholder="Skriv en egen fr&aring;ga...">
+        <button onclick="askCustom()">Fr&aring;ga</button>
+      </div>
+    </section>
+
+    <section class="panel" id="inkorg">
+      <div class="section-label">Ol&auml;st / osorterat</div>
+      <div id="inboxList"><div class="empty-note">Inget i inkorgen.</div></div>
+      <div class="log-input" style="margin-top:16px;">
+        <input type="text" id="inboxInput" placeholder="Skriv en snabb tanke...">
+        <button onclick="addInboxNote()">L&auml;gg till</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<button class="fab" id="fabBtn">
+  <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+</button>
+
+<!-- FICKMINNET / RÖST -->
+<div class="modal-backdrop" id="voiceModal">
+  <div class="modal">
+    <div class="mic-pulse"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg></div>
+    <div class="modal-label" id="modalStatus">TRYCK OCH PRATA</div>
+    <div class="modal-transcript" id="transcriptText">&nbsp;</div>
+    <div id="voiceFallback" style="display:none;">
+      <input type="text" id="voiceFallbackInput" placeholder="Din webbl&auml;sare st&ouml;der inte r&ouml;st &ndash; skriv h&auml;r ist&auml;llet">
+      <button class="add-btn" style="width:100%;padding:10px;" onclick="submitFallback()">Tolka</button>
+    </div>
+    <div class="parse-result" id="parseResult">
+      <div class="parse-row"><span class="parse-label">TYP</span><span id="parseTyp"></span></div>
+      <div class="parse-row"><span class="parse-label">TITEL</span><span id="parseTask"></span></div>
+      <div class="parse-row"><span class="parse-label">DEADLINE</span><span id="parseDeadline"></span></div>
+      <div class="parse-row"><span class="parse-label">KATEGORI</span><span id="parseCategory"></span></div>
+    </div>
+    <div id="parseError" class="error-msg" style="display:none;"></div>
+    <div id="micGuidance" style="display:none;font-size:12.5px;color:var(--ink-dim);border:1px solid var(--line);border-radius:6px;padding:10px;margin-top:10px;text-align:left;">
+      F&aring;ngar inget ljud som vanligt just nu. Vanlig orsak p&aring; vissa telefoner: samtalsmikrofonen &auml;r blockerad men fungerar med h&ouml;gtalarl&auml;ge/handsfree p&aring;slaget. Testa det, eller <span class="pill" style="display:inline-block;" onclick="closeVoice();openDiagnostic();">k&ouml;r mikrofontestet</span>.
+    </div>
+    <button class="icon-btn" style="margin-top:14px;" onclick="startListening()">&#127908; B&ouml;rja lyssna igen</button>
+    <button class="modal-close" onclick="closeVoice()">St&auml;ng</button>
+  </div>
+</div>
+
+<!-- MIKROFONDIAGNOSTIK (dold inställning: långtryck på mic-knappen) -->
+<div class="modal-backdrop" id="diagModal">
+  <div class="modal">
+    <div class="modal-label">MIKROFONDIAGNOSTIK</div>
+    <div style="font-size:12.5px;color:var(--ink-dim);margin:8px 0 14px;text-align:left;">
+      Testar n&aring;gra olika ljudinst&auml;llningar och m&auml;ter om mikrofonen f&aring;ngar n&aring;got ljud alls i webbl&auml;saren. Kan <b>inte</b> styra vilken mikrofonv&auml;g telefonens r&ouml;stigenk&auml;nning faktiskt anv&auml;nder — det avg&ouml;r Android/webbl&auml;saren sj&auml;lv, ingen webbsida kan v&auml;lja det. Ger bara en indikation p&aring; om mikrofonen fungerar &ouml;verhuvudtaget just nu.
+    </div>
+    <div id="diagStatus" class="modal-label">F&ouml;rbereder...</div>
+    <div id="diagResults" style="margin:8px 0;"></div>
+    <div class="error-msg" id="diagGuidance" style="display:none;color:var(--ink-dim);text-align:left;">
+      Inget test f&aring;ngade tydligt ljud. Testa att sl&aring; p&aring; h&ouml;gtalarl&auml;ge/handsfree och k&ouml;r om testet, eller kontrollera mikrofonbeh&ouml;righeten i telefonens inst&auml;llningar f&ouml;r webbl&auml;saren.
+    </div>
+    <button class="add-btn" style="width:100%;padding:12px;margin-top:10px;" onclick="runMicDiagnostic()">Testa igen</button>
+    <button class="modal-close" onclick="closeModal('diagModal')">St&auml;ng</button>
+  </div>
+</div>
+
+<!-- ADD PROJECT -->
+<div class="modal-backdrop" id="addProjectModal">
+  <div class="modal">
+    <div class="modal-label">NYTT PROJEKT</div>
+    <label class="field-label">Titel</label>
+    <input type="text" id="npTitle" placeholder="t.ex. Laga taket">
+    <label class="field-label">Deadline (valfritt)</label>
+    <input type="date" id="npDeadline">
+    <label class="field-label">Prioritet</label>
+    <select id="npPriority"><option value="hog">H&ouml;g</option><option value="normal" selected>Normal</option><option value="lag">L&aring;g</option></select>
+    <label class="field-label">Milstolpar (kommaseparerat, valfritt)</label>
+    <input type="text" id="npMilestones" placeholder="Planering, Rivning, Uppbyggnad, Klart">
+    <button class="add-btn" style="width:100%;padding:12px;margin-top:6px;" onclick="submitAddProject()">Skapa projekt</button>
+    <button class="modal-close" onclick="closeModal('addProjectModal')">Avbryt</button>
+  </div>
+</div>
+
+<!-- ADD EQUIPMENT -->
+<div class="modal-backdrop" id="addEquipmentModal">
+  <div class="modal">
+    <div class="modal-label">REGISTRERA NYTT</div>
+    <label class="field-label">Namn</label>
+    <input type="text" id="neName" placeholder="t.ex. Honda Transalp XL650V">
+    <label class="field-label">Typ</label>
+    <select id="neType"><option value="fordon">Fordon</option><option value="maskin">Maskin</option><option value="utrustning">Utrustning</option></select>
+    <label class="field-label">&Aring;rsmodell (valfritt)</label>
+    <input type="text" id="neYear" placeholder="2002">
+    <label class="field-label">N&auml;sta kontroll/service (valfritt)</label>
+    <input type="date" id="neNext">
+    <button class="add-btn" style="width:100%;padding:12px;margin-top:6px;" onclick="submitAddEquipment()">Registrera</button>
+    <button class="modal-close" onclick="closeModal('addEquipmentModal')">Avbryt</button>
+  </div>
+</div>
+
+<!-- ADD TEMPLATE -->
+<div class="modal-backdrop" id="addTemplateModal">
+  <div class="modal">
+    <div class="modal-label">NY CHECKLISTEMALL</div>
+    <label class="field-label">Namn</label>
+    <input type="text" id="ntName" placeholder="t.ex. V&aring;rservice motorcykel">
+    <label class="field-label">Punkter (en per rad)</label>
+    <textarea id="ntItems" rows="5" placeholder="Kontrollera olja&#10;Byta olja&#10;Kontrollera bromsar"></textarea>
+    <button class="add-btn" style="width:100%;padding:12px;margin-top:6px;" onclick="submitAddTemplate()">Spara mall</button>
+    <button class="modal-close" onclick="closeModal('addTemplateModal')">Avbryt</button>
+  </div>
+</div>
+
+<!-- ADD INVENTORY -->
+<div class="modal-backdrop" id="addInventoryModal">
+  <div class="modal">
+    <div class="modal-label">NYTT F&Ouml;RR&Aring;DSOBJEKT</div>
+    <label class="field-label">Namn</label>
+    <input type="text" id="niName" placeholder="t.ex. Oljefilter">
+    <label class="field-label">Antal</label>
+    <input type="number" id="niQty" value="1">
+    <label class="field-label">Varna n&auml;r under</label>
+    <input type="number" id="niLow" value="1">
+    <button class="add-btn" style="width:100%;padding:12px;margin-top:6px;" onclick="submitAddInventory()">Spara</button>
+    <button class="modal-close" onclick="closeModal('addInventoryModal')">Avbryt</button>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="modal-backdrop" id="onboardModal">
+  <div class="modal">
+    <div class="onboard-progress" id="onboardProgress" style="font-family:var(--font-mono);font-size:10.5px;color:var(--ink-dim);text-align:left;">STEG 1 / 4</div>
+    <div style="font-size:16px;font-weight:600;margin:6px 0 16px;text-align:left;" id="onboardQ">Har du n&aring;gon bil?</div>
+    <div style="display:flex;gap:8px;" id="onboardChoices">
+      <button style="flex:1;padding:12px;background:var(--surface-raised);border:1px solid var(--olive);color:var(--olive);border-radius:4px;" onclick="onboardAnswer(true)">Ja</button>
+      <button style="flex:1;padding:12px;background:var(--surface-raised);border:1px solid var(--line);color:var(--ink);border-radius:4px;" onclick="onboardAnswer(false)">Nej</button>
+    </div>
+    <button class="modal-close" onclick="closeModal('onboardModal')">Avbryt</button>
+  </div>
+</div>
+
+<!-- WEEKLY -->
+<div class="modal-backdrop" id="weeklyModal">
+  <div class="modal">
+    <div class="modal-label">VECKOVIS KOLL</div>
+    <div style="font-size:16px;font-weight:600;margin:6px 0 16px;text-align:left;">Har n&aring;got f&ouml;r&auml;ndrats sedan sist?</div>
+    <div style="text-align:left;">
+      <label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:9px 0;border-top:1px dashed var(--line);"><input type="checkbox" id="wk1"><span>K&ouml;pt n&aring;got nytt verktyg</span></label>
+      <label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:9px 0;border-top:1px dashed var(--line);"><input type="checkbox" id="wk2"><span>K&ouml;pt ny maskin</span></label>
+      <label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:9px 0;border-top:1px dashed var(--line);"><input type="checkbox" id="wk3"><span>S&aring;lt eller gjort dig av med n&aring;got</span></label>
+      <label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:9px 0;border-top:1px dashed var(--line);"><input type="checkbox" id="wk4"><span>N&aring;got har g&aring;tt s&ouml;nder</span></label>
+    </div>
+    <button class="add-btn" style="width:100%;padding:12px;margin-top:14px;" onclick="submitWeekly()">Klart</button>
+  </div>
+</div>
+
+<!-- KALENDER -->
+<div class="modal-backdrop" id="calendarModal">
+  <div class="modal">
+    <div class="modal-label">PRENUMERERA I OUTLOOK</div>
+    <div style="font-size:13.5px;color:var(--ink-dim);margin:8px 0 14px;text-align:left;">
+      L&auml;gg till som internetkalender i Outlook: <b>Kalender &rarr; L&auml;gg till kalender &rarr; Prenumerera fr&aring;n webben</b> &rarr; klistra in l&auml;nken nedan. Inneh&aring;ller p&aring;minnelser, projektdeadlines och service. Outlook uppdaterar den h&auml;r och d&auml;r, inte direkt.
+    </div>
+    <input type="text" id="calendarUrlInput" readonly value="">
+    <button class="add-btn" style="width:100%;padding:12px;" onclick="copyCalendarUrl()">Kopiera l&auml;nk</button>
+    <button class="modal-close" onclick="closeModal('calendarModal')">St&auml;ng</button>
+  </div>
+</div>
+
+<!-- PIN (uppgradera från visning till redigering) -->
+<div class="modal-backdrop" id="pinModal">
+  <div class="modal">
+    <div class="modal-label">L&Aring;S UPP F&Ouml;R REDIGERING</div>
+    <div style="font-size:14px;color:var(--ink-dim);margin:8px 0 14px;">Ange redigerings-PIN f&ouml;r att kunna l&auml;gga till och &auml;ndra saker.</div>
+    <input type="password" id="pinInput" placeholder="PIN" inputmode="numeric" onkeydown="if(event.key==='Enter')submitPin();">
+    <button class="add-btn" style="width:100%;padding:12px;" onclick="submitPin()">L&aring;s upp</button>
+    <div class="error-msg" id="pinError" style="display:none;"></div>
+    <button class="modal-close" onclick="closeModal('pinModal')">Avbryt</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script>
+/* ======================= KONFIGURATION ==========================
+   Fyll i efter att du skapat Firebase-projektet och Cloud Functions.
+   Se SETUP.md för steg-för-steg-instruktioner.
+=================================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBrpeKXmaCx4cnsfO55_1fNCRaq7Ow_mS8",
+  authDomain: "fickminne.firebaseapp.com",
+  databaseURL: "https://fickminne-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "fickminne",
+  storageBucket: "fickminne.firebasestorage.app",
+  messagingSenderId: "245268929808",
+  appId: "1:245268929808:web:2c62a1fce9d2aff91e1995"
+};
+const PARSE_FUNCTION_URL = "https://europe-west1-fickminne.cloudfunctions.net/parsefickminne";
+const ASK_FUNCTION_URL   = "https://europe-west1-fickminne.cloudfunctions.net/askassistant";
+const LOOKUP_FUNCTION_URL = "https://europe-west1-fickminne.cloudfunctions.net/lookupparts";
+const AUTH_FUNCTION_URL   = "https://europe-west1-fickminne.cloudfunctions.net/authenticate";
+const CALENDAR_FEED_URL   = "https://europe-west1-fickminne.cloudfunctions.net/calendarfeed";
+const COMPRESS_MAX_DIM = 1600;  // längsta sidan i pixlar efter komprimering
+const COMPRESS_QUALITY = 0.8;   // 0–1, JPEG-kvalitet
+/* =================================================================== */
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const storage = firebase.storage();
+
+document.getElementById('calendarUrlInput').value = CALENDAR_FEED_URL;
+function copyCalendarUrl(){
+  const input = document.getElementById('calendarUrlInput');
+  input.select();
+  navigator.clipboard?.writeText(input.value).catch(()=>{});
+  document.execCommand && document.execCommand('copy');
+}
+
+let isEditor = false;
+let isViewer = false;
+firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+firebase.auth().onAuthStateChanged(async user=>{
+  if(user){
+    try{
+      const tokenResult = await user.getIdTokenResult();
+      const role = tokenResult.claims.role;
+      isEditor = role === 'editor';
+      isViewer = isEditor || role === 'viewer';
+    }catch(e){ isEditor = false; isViewer = false; }
+  } else {
+    isEditor = false; isViewer = false;
+  }
+  updateAuthUI();
+});
+function updateAuthUI(){
+  const authed = isEditor || isViewer;
+  document.body.classList.toggle('authed', authed);
+  document.body.classList.toggle('viewer-mode', authed && !isEditor);
+  const btn = document.getElementById('lockBtn');
+  if(isEditor){
+    btn.textContent = 'Redigerar · lås';
+    btn.classList.add('is-editor');
+  } else if(isViewer){
+    btn.textContent = 'Visar · lås upp redigering';
+    btn.classList.remove('is-editor');
+  } else {
+    btn.textContent = 'Lås upp';
+    btn.classList.remove('is-editor');
+  }
+}
+function handleLockClick(){
+  if(isEditor){
+    if(confirm('Lås appen igen på den här enheten?')) firebase.auth().signOut();
+  } else if(isViewer){
+    openModal('pinModal');
+  }
+}
+async function attemptPin(pin){
+  const res = await fetch(AUTH_FUNCTION_URL, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ pin })
+  });
+  const data = await res.json();
+  if(!res.ok || data.error) throw new Error(data.error || 'Fel PIN');
+  await firebase.auth().signInWithCustomToken(data.token);
+}
+async function submitGatePin(){
+  const input = document.getElementById('gatePinInput');
+  const err = document.getElementById('gatePinError');
+  err.style.display = 'none';
+  const pin = input.value.trim(); if(!pin) return;
+  try{ await attemptPin(pin); input.value=''; }
+  catch(e){ err.textContent = 'Fel PIN, försök igen.'; err.style.display = 'block'; }
+}
+async function submitPin(){
+  const input = document.getElementById('pinInput');
+  const err = document.getElementById('pinError');
+  err.style.display = 'none';
+  const pin = input.value.trim(); if(!pin) return;
+  try{ await attemptPin(pin); input.value=''; closeModal('pinModal'); }
+  catch(e){ err.textContent = 'Fel PIN, försök igen.'; err.style.display = 'block'; }
+}
+
+const state = { projects:{}, equipment:{}, shopping:{}, inventory:{}, inbox:{}, templates:{}, reminders:{} };
+
+db.ref('.info/connected').on('value', snap=>{
+  const ok = snap.val() === true;
+  document.getElementById('connDot').className = 'dot' + (ok ? ' ok' : '');
+  document.getElementById('connLabel').textContent = ok ? 'ansluten' : 'ansluter...';
+});
+
+function bind(path, key, renderFn){
+  db.ref(path).on('value', snap=>{
+    state[key] = snap.val() || {};
+    renderFn();
+    renderIdag();
+  });
+}
+bind('projects','projects', renderProjects);
+bind('equipment','equipment', renderEquipment);
+bind('shopping','shopping', renderShopping);
+bind('inventory','inventory', renderInventory);
+bind('inbox','inbox', renderInbox);
+bind('checklistTemplates','templates', renderTemplates);
+bind('reminders','reminders', ()=>{});
+
+/* ---------- helpers ---------- */
+function esc(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function todayISO(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function daysFromToday(dateStr){
+  if(!dateStr) return null;
+  const d = new Date(dateStr+'T00:00:00'); const now = new Date(); now.setHours(0,0,0,0);
+  return Math.round((d-now)/86400000);
+}
+function fmtDate(dateStr){
+  if(!dateStr) return '—';
+  const d = new Date(dateStr+'T00:00:00');
+  return d.toLocaleDateString('sv-SE',{day:'numeric',month:'short',year:'numeric'});
+}
+function lastLogTime(logObj){
+  if(!logObj) return null;
+  const times = Object.values(logObj).map(l=>l.time);
+  return times.length ? Math.max(...times) : null;
+}
+function stampFor(daysLeft){
+  if(daysLeft===null) return '';
+  if(daysLeft<0) return '<div class="stamp late">FÖRSENAD</div>';
+  if(daysLeft<=5) return '<div class="stamp soon">SNART</div>';
+  return '<div class="stamp ok">OK</div>';
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+function toggleDetail(id){
+  const el = document.getElementById('detail-'+id);
+  if(!el) return;
+  document.querySelectorAll('.detail.open').forEach(d=>{ if(d!==el){ d.classList.remove('open'); openDetails.delete(d.id.replace('detail-','')); } });
+  el.classList.toggle('open');
+  if(el.classList.contains('open')) openDetails.add(id); else openDetails.delete(id);
+}
+const openDetails = new Set();
+function reapplyOpenDetails(){
+  openDetails.forEach(id=>{
+    const el = document.getElementById('detail-'+id);
+    if(el) el.classList.add('open');
+  });
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+
+/* ================= IDAG (beräknas live från riktig data) ================= */
+function renderIdag(){
+  const html = [];
+  const today = todayISO();
+
+  // sena/kommande projekt-deadlines
+  const projRows = Object.entries(state.projects||{});
+  const late = [], soon = [], stalled = [];
+  projRows.forEach(([id,p])=>{
+    const dl = daysFromToday(p.deadline);
+    if(dl!==null && dl<0) late.push([id,p,dl]);
+    else if(dl!==null && dl<=7) soon.push([id,p,dl]);
+    const lt = lastLogTime(p.log);
+    const idleDays = lt ? Math.floor((Date.now()-lt)/86400000) : 999;
+    if(idleDays >= 14) stalled.push([id,p,idleDays]);
+  });
+
+  if(late.length || soon.length){
+    html.push('<div class="section-label">Deadlines</div>');
+    late.forEach(([id,p,dl])=>{
+      html.push(`<div class="card" onclick="goToProject('${id}')"><div class="row"><div><div class="item-title">${esc(p.title)}</div><div class="item-meta">DEADLINE ${fmtDate(p.deadline)}</div></div><div class="stamp late">FÖRSENAD</div></div></div>`);
+    });
+    soon.forEach(([id,p,dl])=>{
+      html.push(`<div class="card" onclick="goToProject('${id}')"><div class="row"><div><div class="item-title">${esc(p.title)}</div><div class="item-meta">DEADLINE ${fmtDate(p.deadline)}</div></div><div class="stamp soon">OM ${dl} DAGAR</div></div></div>`);
+    });
+  }
+
+  const remRows = Object.entries(state.reminders||{}).filter(([id,r])=>!r.done);
+  if(remRows.length){
+    html.push('<div class="section-label">Påminnelser</div>');
+    remRows.forEach(([id,r])=>{
+      const dl = daysFromToday(r.date);
+      html.push(`<div class="card"><div class="row"><div><div class="item-title">${esc(r.text)}</div><div class="item-meta">${r.date?('DEADLINE '+fmtDate(r.date)):'INGET DATUM'}${r.category?(' · '+esc(r.category)):''}</div></div><div style="display:flex;align-items:center;gap:8px;">${dl!==null?stampFor(dl):''}<span class="pill" onclick="markReminderDone('${id}')">Klar</span></div></div></div>`);
+    });
+  }
+
+  if(stalled.length){
+    html.push('<div class="section-label">Projekt som stått stilla</div>');
+    stalled.forEach(([id,p,idle])=>{
+      html.push(`<div class="card" onclick="goToProject('${id}')"><div class="row"><div><div class="item-title">${esc(p.title)}</div><div class="item-meta">SENAST UPPDATERAD FÖR ${idle} DAGAR SEDAN</div></div><div class="stamp late">GLÖMD?</div></div></div>`);
+    });
+  }
+
+  // underhåll / equipment kommande kontroll
+  const eqRows = Object.entries(state.equipment||{});
+  const eqSoon = eqRows.filter(([id,e])=>{ const d=daysFromToday(e.next); return d!==null && d<=30; });
+  if(eqSoon.length){
+    html.push('<div class="section-label">Underhåll</div>');
+    eqSoon.forEach(([id,e])=>{
+      const d = daysFromToday(e.next);
+      html.push(`<div class="card" onclick="goToEquipment('${id}')"><div class="row"><div><div class="item-title">${esc(e.name)}</div><div class="item-meta">NÄSTA KONTROLL ${fmtDate(e.next)}</div></div>${d<0?'<div class="stamp late">FÖRSENAD</div>':'<div class="stamp soon">OM '+d+' DAGAR</div>'}</div></div>`);
+    });
+  }
+
+  // lager - lågt saldo
+  const lowInv = Object.entries(state.inventory||{}).filter(([id,i])=> (i.qty||0) <= (i.low||0));
+  if(lowInv.length){
+    html.push('<div class="section-label">Lågt i förrådet</div>');
+    lowInv.forEach(([id,i])=>{
+      html.push(`<div class="card"><div class="row"><div><div class="item-title">${esc(i.name)}</div><div class="item-meta">${i.qty||0} KVAR</div></div><div class="stamp ${ (i.qty||0)<=0 ? 'late':'soon'}">${(i.qty||0)<=0?'SLUT':'LÅGT'}</div></div></div>`);
+    });
+  }
+
+  const inboxCount = Object.keys(state.inbox||{}).length;
+  if(inboxCount){
+    html.push(`<div class="section-label">Inkorg</div><div class="card" onclick="document.querySelector('[data-tab=inkorg]').click()"><div class="row"><div class="item-title">${inboxCount} osorterade anteckningar</div><div class="stamp info">TITTA</div></div></div>`);
+  }
+
+  if(!html.length){
+    html.push('<div class="empty-note">Inget akut just nu. Bra jobbat.</div>');
+  }
+  document.getElementById('idagContent').innerHTML = html.join('');
+  document.getElementById('inkorgCount').textContent = inboxCount ? '·'+inboxCount : '';
+}
+function goToProject(id){ document.querySelector('[data-tab=projekt]').click(); setTimeout(()=>toggleDetail('proj-'+id),50); }
+function goToEquipment(id){ document.querySelector('[data-tab=underhall]').click(); setTimeout(()=>toggleDetail('eq-'+id),50); }
+function markReminderDone(id){ db.ref('reminders/'+id+'/done').set(true); }
+
+/* ================= PROJEKT ================= */
+function renderProjects(){
+  const rows = Object.entries(state.projects||{});
+  if(!rows.length){ document.getElementById('projektList').innerHTML = '<div class="empty-note">Inga projekt än.</div>'; return; }
+  let html = '';
+  rows.forEach(([id,p])=>{
+    const dl = daysFromToday(p.deadline);
+    const milestones = p.milestones || [];
+    const idx = p.milestoneIndex || 0;
+    const progress = milestones.length ? Math.round((idx/milestones.length)*100) : (p.progress||0);
+    const checklist = p.checklist || [];
+    const log = p.log ? Object.entries(p.log).sort((a,b)=>b[1].time-a[1].time) : [];
+    const costs = p.costs || [];
+    const totalCost = costs.reduce((s,c)=>s+(Number(c.amount)||0),0);
+
+    html += `<div class="card" onclick="toggleDetail('proj-${id}')">
+      <div class="row"><div><div class="item-title">${esc(p.title)}</div>
+      <div class="item-meta">${p.priority?('PRIO '+p.priority.toUpperCase()+' · '):''}${p.deadline?('DEADLINE '+fmtDate(p.deadline)):'INGEN DEADLINE'}</div></div>
+      ${stampFor(dl)}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${progress}%"></div></div>
+    </div>
+    <div class="detail" id="detail-proj-${id}">`;
+
+    if(milestones.length){
+      html += '<div class="milestones">';
+      milestones.forEach((m,i)=>{
+        const cls = i<idx ? 'done' : (i===idx ? 'current' : '');
+        html += `<div class="milestone ${cls}" onclick="event.stopPropagation();advanceMilestone('${id}',${i})">${esc(m)}</div>`;
+      });
+      html += '</div>';
+    }
+
+    html += '<div class="checklist">';
+    checklist.forEach((c,i)=>{
+      html += `<label><input type="checkbox" ${c.done?'checked':''} onchange="toggleChecklistItem('${id}',${i},this.checked)"><span>${esc(c.text)}</span></label>`;
+    });
+    html += `</div><div class="log-input"><input type="text" placeholder="Ny punkt på checklistan..." onkeydown="if(event.key==='Enter'){addChecklistItem('${id}',this.value);this.value='';}"><button onclick="const i=this.previousElementSibling;addChecklistItem('${id}',i.value);i.value='';">L&auml;gg till</button></div>`;
+
+    log.forEach(([lid,l])=>{
+      html += `<div class="log-entry"><span class="log-time">${new Date(l.time).toLocaleString('sv-SE')}</span>${esc(l.text)}</div>`;
+    });
+    html += `<div class="log-input"><input type="text" id="loginput-${id}" placeholder="Logga dagens framsteg..."><button onclick="addProjectLog('${id}')">Spara</button></div>`;
+
+    const images = p.images ? Object.entries(p.images) : [];
+    html += `<div class="gallery" id="gallery-${id}">`;
+    images.forEach(([iid,img])=>{
+      html += `<div class="thumb" style="background-image:url('${esc(img.url)}');background-size:cover;background-position:center;" onclick="window.open('${esc(img.url)}','_blank')"></div>`;
+    });
+    html += `<label class="thumb add" for="imgfile-${id}">
+      <input type="file" id="imgfile-${id}" accept="image/*" style="display:none" onchange="uploadProjectImage('${id}', this.files[0], this)">
+      <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg>
+    </label></div>`;
+
+    html += `<div class="costs">`;
+    costs.forEach(c=>{ html += `${esc(c.label)} &nbsp;${c.amount} kr &nbsp;·&nbsp; `; });
+    html += `<div class="total">Totalt: ${totalCost} kr</div></div>`;
+    html += `<div class="log-input"><input type="text" id="costlabel-${id}" placeholder="Vad?" style="flex:2;"><input type="number" id="costamount-${id}" placeholder="Kr" style="flex:1;"><button onclick="addCost('${id}')">L&auml;gg till</button></div>`;
+
+    html += `</div>`;
+  });
+  document.getElementById('projektList').innerHTML = html;
+  reapplyOpenDetails();
+}
+function openAddProject(){ openModal('addProjectModal'); }
+function submitAddProject(){
+  const title = document.getElementById('npTitle').value.trim();
+  if(!title) return;
+  const deadline = document.getElementById('npDeadline').value || null;
+  const priority = document.getElementById('npPriority').value;
+  const milestonesRaw = document.getElementById('npMilestones').value.trim();
+  const milestones = milestonesRaw ? milestonesRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+  db.ref('projects').push({ title, deadline, priority, milestones, milestoneIndex:0, checklist:[], costs:[] });
+  closeModal('addProjectModal');
+  document.getElementById('npTitle').value=''; document.getElementById('npDeadline').value=''; document.getElementById('npMilestones').value='';
+}
+function advanceMilestone(id, clickedIndex){
+  const p = state.projects[id]; if(!p) return;
+  const newIndex = clickedIndex + 1 <= (p.milestones||[]).length ? clickedIndex+1 : clickedIndex;
+  db.ref('projects/'+id+'/milestoneIndex').set(newIndex);
+  db.ref('projects/'+id+'/log').push({ time: Date.now(), text: 'Milstolpe uppnådd: '+p.milestones[clickedIndex] });
+}
+function toggleChecklistItem(id, idx, done){ db.ref(`projects/${id}/checklist/${idx}/done`).set(done); }
+function addChecklistItem(id, text){ if(!text.trim())return; db.ref(`projects/${id}/checklist`).push ? addToArray('projects/'+id+'/checklist',{text:text.trim(),done:false}) : null; }
+function addToArray(path, item){
+  return db.ref(path).once('value').then(snap=>{
+    const arr = snap.val() || [];
+    arr.push(item);
+    return db.ref(path).set(arr);
+  });
+}
+function addProjectLog(id){
+  const input = document.getElementById('loginput-'+id);
+  const text = input.value.trim(); if(!text) return;
+  db.ref('projects/'+id+'/log').push({ time: Date.now(), text });
+  input.value='';
+}
+function addCost(id){
+  const label = document.getElementById('costlabel-'+id).value.trim();
+  const amount = Number(document.getElementById('costamount-'+id).value)||0;
+  if(!label) return;
+  addToArray('projects/'+id+'/costs', {label, amount});
+  document.getElementById('costlabel-'+id).value=''; document.getElementById('costamount-'+id).value='';
+}
+
+function compressImage(file, maxDim, quality){
+  return new Promise((resolve, reject)=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = ()=>{
+      let { width, height } = img;
+      if(width > maxDim || height > maxDim){
+        if(width > height){ height = Math.round(height * maxDim / width); width = maxDim; }
+        else { width = Math.round(width * maxDim / height); height = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(blob=>{
+        if(blob) resolve(blob); else reject(new Error('Kunde inte komprimera bilden'));
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error('Kunde inte läsa bilden')); };
+    img.src = url;
+  });
+}
+
+function uploadProjectImage(id, file, labelEl){
+  if(!file) return;
+  const gallery = document.getElementById('gallery-'+id);
+  const placeholder = document.createElement('div');
+  placeholder.className = 'thumb uploading';
+  gallery.insertBefore(placeholder, gallery.lastElementChild);
+
+  const isImage = file.type.startsWith('image/');
+  const prep = isImage ? compressImage(file, COMPRESS_MAX_DIM, COMPRESS_QUALITY) : Promise.resolve(file);
+  const filename = isImage ? file.name.replace(/\.[^.]+$/, '') + '.jpg' : file.name;
+
+  prep.then(blob=>{
+    const path = 'projects/'+id+'/images/'+Date.now()+'_'+filename;
+    return storage.ref(path).put(blob);
+  }).then(snap => snap.ref.getDownloadURL()).then(url => {
+    db.ref('projects/'+id+'/images').push({ url, name: filename, time: Date.now() });
+    db.ref('projects/'+id+'/log').push({ time: Date.now(), text: 'Bild tillagd: '+filename });
+  }).catch(err => {
+    console.error(err);
+    alert('Uppladdningen misslyckades: ' + err.message);
+    placeholder.remove();
+  });
+}
+
+function uploadEquipmentDoc(id, file){
+  if(!file) return;
+  const isImage = file.type.startsWith('image/');
+  const prep = isImage ? compressImage(file, COMPRESS_MAX_DIM, COMPRESS_QUALITY) : Promise.resolve(file);
+  const filename = isImage ? file.name.replace(/\.[^.]+$/, '') + '.jpg' : file.name;
+
+  prep.then(blob=>{
+    const path = 'equipment/'+id+'/docs/'+Date.now()+'_'+filename;
+    return storage.ref(path).put(blob);
+  }).then(snap => snap.ref.getDownloadURL()).then(url => {
+    db.ref('equipment/'+id+'/docs').push({ url, name: filename, time: Date.now() });
+  }).catch(err => {
+    console.error(err);
+    alert('Uppladdningen misslyckades: ' + err.message);
+  });
+}
+
+/* ================= UNDERHÅLL ================= */
+function renderEquipment(){
+  const rows = Object.entries(state.equipment||{});
+  if(!rows.length){ document.getElementById('equipmentList').innerHTML = '<div class="empty-note">Inget registrerat än.</div>'; return; }
+  let html = '';
+  rows.forEach(([id,e])=>{
+    const d = daysFromToday(e.next);
+    const log = e.log ? Object.entries(e.log).sort((a,b)=>b[1].time-a[1].time) : [];
+    html += `<div class="card" onclick="toggleDetail('eq-${id}')">
+      <div class="row"><div><div class="item-title">${esc(e.name)}</div>
+      <div class="item-meta">${e.type?e.type.toUpperCase()+' · ':''}${e.year?('ÅRSMODELL '+esc(e.year)+' · '):''}${e.next?('NÄSTA '+fmtDate(e.next)):'INGEN KONTROLL PLANERAD'}</div></div>
+      ${d!==null ? stampFor(d) : ''}</div>
+    </div>
+    <div class="detail" id="detail-eq-${id}">`;
+
+    const specs = e.specs || [];
+    const confirmed = specs.filter(s=>s.confirmed);
+    const pending = specs.map((s,i)=>({...s, idx:i})).filter(s=>!s.confirmed);
+    if(confirmed.length){
+      html += `<div class="item-meta" style="margin-bottom:4px;">BEKRÄFTAD SPECIFIKATION</div><div class="checklist" style="margin-top:0;">`;
+      confirmed.forEach(s=>{ html += `<label style="color:var(--ink);"><span style="width:15px;display:inline-block;">✓</span><span>${esc(s.text)}</span></label>`; });
+      html += `</div>`;
+    }
+    if(pending.length){
+      html += `<div class="item-meta" style="margin:10px 0 4px;">FÖRESLAGNA DELAR (obekräftade — granska innan de sparas)</div><div class="checklist" style="margin-top:0;">`;
+      pending.forEach(s=>{
+        html += `<label><input type="checkbox" onchange="confirmSpec('${id}',${s.idx},this.checked)"><span>${esc(s.text)}</span></label> <span class="pill ghost" style="margin-left:6px;" onclick="removeSpec('${id}',${s.idx})">ta bort</span>`;
+      });
+      html += `</div>`;
+    }
+    html += `<button class="add-btn" id="lookupbtn-${id}" style="margin:6px 0 4px;" onclick="lookupParts('${id}')">Slå upp reservdelar (AI)</button>`;
+
+    log.forEach(([lid,l])=>{
+      html += `<div class="log-entry"><span class="log-time">${new Date(l.time).toLocaleString('sv-SE')}</span>${esc(l.text)}</div>`;
+    });
+    html += `<div class="log-input"><input type="text" id="eqlog-${id}" placeholder="T.ex. Bytt olja och filter idag..."><button onclick="addEquipmentLog('${id}')">Spara</button></div>`;
+    html += `<div class="log-input"><input type="date" id="eqnext-${id}" value="${e.next||''}"><button onclick="setNextService('${id}')">Sätt nästa kontroll</button></div>`;
+
+    const docs = e.docs ? Object.entries(e.docs) : [];
+    html += `<div class="doc-list" id="docs-${id}">`;
+    docs.forEach(([did,doc])=>{
+      html += `<div class="doc-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm2 18H6V4h7v5h5z"/></svg><a href="${esc(doc.url)}" target="_blank">${esc(doc.name)}</a></div>`;
+    });
+    html += `</div><label class="doc-add-btn" for="docfile-${id}">+ Ladda upp bild/dokument
+      <input type="file" id="docfile-${id}" accept="image/*,application/pdf" style="display:none" onchange="uploadEquipmentDoc('${id}', this.files[0])">
+    </label>`;
+    html += `</div>`;
+  });
+  document.getElementById('equipmentList').innerHTML = html;
+  reapplyOpenDetails();
+}
+function openAddEquipment(){ openModal('addEquipmentModal'); }
+function submitAddEquipment(){
+  const name = document.getElementById('neName').value.trim();
+  if(!name) return;
+  const type = document.getElementById('neType').value;
+  const year = document.getElementById('neYear').value.trim();
+  const next = document.getElementById('neNext').value || null;
+  db.ref('equipment').push({ name, type, year, next });
+  closeModal('addEquipmentModal');
+  document.getElementById('neName').value=''; document.getElementById('neYear').value=''; document.getElementById('neNext').value='';
+}
+function addEquipmentLog(id){
+  const input = document.getElementById('eqlog-'+id);
+  const text = input.value.trim(); if(!text) return;
+  db.ref('equipment/'+id+'/log').push({ time: Date.now(), text });
+  input.value='';
+}
+function setNextService(id){
+  const val = document.getElementById('eqnext-'+id).value;
+  db.ref('equipment/'+id+'/next').set(val||null);
+}
+
+function removeFromArray(path, idx){
+  db.ref(path).once('value').then(snap=>{
+    const arr = snap.val() || [];
+    arr.splice(idx,1);
+    db.ref(path).set(arr);
+  });
+}
+function confirmSpec(id, idx, done){
+  db.ref(`equipment/${id}/specs/${idx}/confirmed`).set(done);
+}
+function removeSpec(id, idx){
+  removeFromArray('equipment/'+id+'/specs', idx);
+}
+async function lookupParts(id){
+  const e = state.equipment[id]; if(!e) return;
+  const btn = document.getElementById('lookupbtn-'+id);
+  if(btn){ btn.textContent = 'Slår upp...'; btn.disabled = true; }
+  try{
+    const res = await fetch(LOOKUP_FUNCTION_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name: e.name, type: e.type, year: e.year || null })
+    });
+    if(!res.ok) throw new Error('Servern svarade '+res.status);
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    const items = data.items || [];
+    for(const text of items){
+      await addToArray('equipment/'+id+'/specs', {text, confirmed:false});
+    }
+    if(!items.length) alert('Hittade inga förslag för den här modellen — lägg till manuellt istället.');
+  }catch(err){
+    console.error(err);
+    alert('Kunde inte slå upp delar just nu (kontrollera Cloud Function-URL:en).');
+  }finally{
+    if(btn){ btn.textContent = 'Slå upp reservdelar (AI)'; btn.disabled = false; }
+  }
+}
+
+function renderTemplates(){
+  const rows = Object.entries(state.templates||{});
+  if(!rows.length){ document.getElementById('templateList').innerHTML = '<div class="empty-note">Inga mallar än.</div>'; return; }
+  let html = '';
+  rows.forEach(([id,t])=>{
+    html += `<div class="card" onclick="toggleDetail('tpl-${id}')"><div class="row"><div class="item-title">${esc(t.name)}</div><div class="stamp ok">MALL</div></div></div>
+    <div class="detail" id="detail-tpl-${id}">
+      <div class="checklist">${(t.items||[]).map(i=>`<label><input type="checkbox" disabled><span>${esc(i)}</span></label>`).join('')}</div>
+      <div class="log-input"><select id="tplTarget-${id}">${Object.entries(state.equipment||{}).map(([eid,e])=>`<option value="${eid}">${esc(e.name)}</option>`).join('')}</select><button onclick="applyTemplate('${id}')">Anv&auml;nd</button></div>
+    </div>`;
+  });
+  document.getElementById('templateList').innerHTML = html;
+  reapplyOpenDetails();
+}
+function openAddTemplate(){ openModal('addTemplateModal'); }
+function submitAddTemplate(){
+  const name = document.getElementById('ntName').value.trim();
+  if(!name) return;
+  const items = document.getElementById('ntItems').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  db.ref('checklistTemplates').push({ name, items });
+  closeModal('addTemplateModal');
+  document.getElementById('ntName').value=''; document.getElementById('ntItems').value='';
+}
+function applyTemplate(tplId){
+  const target = document.getElementById('tplTarget-'+tplId).value;
+  const tpl = state.templates[tplId];
+  if(!target || !tpl) return;
+  const items = (tpl.items||[]).map(text=>({text, done:false}));
+  db.ref('equipment/'+target+'/checklist').set(items);
+  db.ref('equipment/'+target+'/log').push({ time: Date.now(), text: 'Checklista "'+tpl.name+'" tillämpad.' });
+}
+
+/* ================= INKÖP & LAGER ================= */
+function renderShopping(){
+  const rows = Object.entries(state.shopping||{}).filter(([id,i])=>!i.done);
+  if(!rows.length){ document.getElementById('shoppingList').innerHTML = '<div class="empty-note">Inköpslistan är tom.</div>'; return; }
+  const grouped = {};
+  rows.forEach(([id,i])=>{ const src=i.source||'Allmänt'; (grouped[src]=grouped[src]||[]).push([id,i]); });
+  let html = '';
+  Object.entries(grouped).forEach(([src, items])=>{
+    html += `<div class="item-meta" style="margin:14px 0 6px;">${esc(src.toUpperCase())}</div><div class="checklist" style="margin-top:0;">`;
+    items.forEach(([id,i])=>{
+      html += `<label><input type="checkbox" onchange="toggleShoppingDone('${id}',this.checked)"><span>${esc(i.text)}</span></label>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById('shoppingList').innerHTML = html;
+}
+function addShoppingItem(){
+  const input = document.getElementById('shopInput');
+  const text = input.value.trim(); if(!text) return;
+  db.ref('shopping').push({ text, source:'Allmänt', done:false });
+  input.value='';
+}
+function toggleShoppingDone(id, done){ db.ref('shopping/'+id+'/done').set(done); }
+
+function renderInventory(){
+  const rows = Object.entries(state.inventory||{});
+  if(!rows.length){ document.getElementById('inventoryList').innerHTML = '<div class="empty-note">Inget i förrådet registrerat.</div>'; return; }
+  let html = '';
+  rows.forEach(([id,i])=>{
+    const low = (i.qty||0) <= (i.low||0);
+    html += `<div class="card"><div class="row"><div><div class="item-title">${esc(i.name)}</div><div class="item-meta">${i.qty||0} ST KVAR</div></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="icon-btn qty-btn" onclick="adjustQty('${id}',-1)">−</button>
+        <button class="icon-btn qty-btn" onclick="adjustQty('${id}',1)">+</button>
+        ${low?'<div class="stamp soon">LÅGT</div>':'<div class="stamp ok">OK</div>'}
+      </div></div></div>`;
+  });
+  document.getElementById('inventoryList').innerHTML = html;
+}
+function adjustQty(id, delta){
+  const cur = (state.inventory[id]||{}).qty || 0;
+  db.ref('inventory/'+id+'/qty').set(Math.max(0, cur+delta));
+}
+function openAddInventory(){ openModal('addInventoryModal'); }
+function submitAddInventory(){
+  const name = document.getElementById('niName').value.trim(); if(!name) return;
+  const qty = Number(document.getElementById('niQty').value)||0;
+  const low = Number(document.getElementById('niLow').value)||0;
+  db.ref('inventory').push({ name, qty, low });
+  closeModal('addInventoryModal');
+  document.getElementById('niName').value='';
+}
+
+/* ================= INKORG ================= */
+function renderInbox(){
+  const rows = Object.entries(state.inbox||{});
+  if(!rows.length){ document.getElementById('inboxList').innerHTML = '<div class="empty-note">Inget i inkorgen.</div>'; return; }
+  const projectNames = Object.entries(state.projects||{}).map(([id,p])=>[id,p.title]);
+  const eqNames = Object.entries(state.equipment||{}).map(([id,e])=>[id,e.name]);
+  let html = '';
+  rows.forEach(([id,note])=>{
+    const text = note.text.toLowerCase();
+    const matches = [...projectNames, ...eqNames].filter(([nid,name])=> name && text.includes(name.toLowerCase().split(' ')[0]));
+    html += `<div class="inbox-item"><div class="inbox-text">"${esc(note.text)}"</div>
+      <div class="inbox-suggest"><span class="label">Lägg under:</span>`;
+    matches.slice(0,2).forEach(([nid,name])=>{
+      html += `<span class="pill" onclick="resolveInboxToLog('${id}','${nid}')">${esc(name)}</span>`;
+    });
+    html += `<span class="pill ghost" onclick="dismissInbox('${id}')">Klar / ta bort</span></div></div>`;
+  });
+  document.getElementById('inboxList').innerHTML = html;
+}
+function addInboxNote(){
+  const input = document.getElementById('inboxInput');
+  const text = input.value.trim(); if(!text) return;
+  db.ref('inbox').push({ text, time: Date.now() });
+  input.value='';
+}
+function resolveInboxToLog(inboxId, targetId){
+  const note = state.inbox[inboxId]; if(!note) return;
+  const path = state.projects[targetId] ? 'projects' : 'equipment';
+  db.ref(path+'/'+targetId+'/log').push({ time: Date.now(), text: note.text });
+  db.ref('inbox/'+inboxId).remove();
+}
+function dismissInbox(id){ db.ref('inbox/'+id).remove(); }
+
+/* ================= FICKMINNET / RÖST ================= */
+let recognition = null;
+let micFailStreak = 0;
+function initRecognition(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) return null;
+  const r = new SR();
+  r.lang = 'sv-SE'; r.interimResults = true; r.continuous = false;
+  return r;
+}
+
+/* ---- mikrofondiagnostik ----
+   OBS: det här kan INTE styra vilken mikrofonväg webbläsarens
+   SpeechRecognition faktiskt använder (webben exponerar ingen sådan
+   kontroll — se OM_PARMEN.md). Det här är en informativ förtest av
+   getUserMedia med olika constraints, för att upptäcka om mikrofonen
+   fångar ljud alls just nu och ge vägledning om den inte gör det. */
+const MIC_CANDIDATES = [
+  { label: 'Bearbetad (kommunikation)', constraints: { echoCancellation:true,  noiseSuppression:true,  autoGainControl:true  } },
+  { label: 'Obehandlad (rå)',           constraints: { echoCancellation:false, noiseSuppression:false, autoGainControl:false } },
+  { label: 'Brusreducerad',             constraints: { echoCancellation:false, noiseSuppression:true,  autoGainControl:true  } },
+  { label: 'Auto-nivå',                 constraints: { echoCancellation:false, noiseSuppression:false, autoGainControl:true  } }
+];
+const MIC_SIGNAL_THRESHOLD = 0.02; // ungefärlig RMS-tröskel för "fångar ljud"
+
+async function measureMicLevel(constraints, durationMs){
+  let stream;
+  try{ stream = await navigator.mediaDevices.getUserMedia({ audio: constraints }); }
+  catch(e){ return { level: 0, error: e.message }; }
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const source = ctx.createMediaStreamSource(stream);
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 2048;
+  source.connect(analyser);
+  const buf = new Float32Array(analyser.fftSize);
+  let peak = 0;
+  const start = Date.now();
+  await new Promise(resolve=>{
+    (function sample(){
+      analyser.getFloatTimeDomainData(buf);
+      let sum = 0;
+      for(let i=0;i<buf.length;i++) sum += buf[i]*buf[i];
+      const rms = Math.sqrt(sum/buf.length);
+      if(rms > peak) peak = rms;
+      if(Date.now()-start < durationMs) requestAnimationFrame(sample); else resolve();
+    })();
+  });
+  stream.getTracks().forEach(t=>t.stop());
+  ctx.close();
+  return { level: peak };
+}
+async function performDiagnostic(onProgress){
+  const results = [];
+  for(const candidate of MIC_CANDIDATES){
+    if(onProgress) onProgress('Testar: ' + candidate.label + '...', results);
+    const res = await measureMicLevel(candidate.constraints, 600);
+    results.push({ ...candidate, ...res });
+    if(onProgress) onProgress(null, results);
+  }
+  const working = results.filter(r=>r.level >= MIC_SIGNAL_THRESHOLD).sort((a,b)=>b.level-a.level);
+  const best = working[0] || null;
+  const diag = {
+    timestamp: Date.now(),
+    hasWorkingMic: !!best,
+    bestLabel: best ? best.label : null,
+    results: results.map(r=>({ label:r.label, level:r.level||0, error:r.error||null }))
+  };
+  localStorage.setItem('parmen_mic_diag', JSON.stringify(diag));
+  return diag;
+}
+function renderDiagResults(results){
+  document.getElementById('diagResults').innerHTML = results.map(r=>{
+    const pct = Math.min(100, Math.round((r.level||0) * 500));
+    return `<div class="parse-row"><span class="parse-label">${esc(r.label).toUpperCase()}</span><span>${r.error ? 'Fel: '+esc(r.error) : pct + '%'}</span></div>`;
+  }).join('');
+}
+async function runMicDiagnostic(){
+  const statusEl = document.getElementById('diagStatus');
+  document.getElementById('diagGuidance').style.display = 'none';
+  document.getElementById('diagResults').innerHTML = '';
+  const diag = await performDiagnostic((status, results)=>{
+    if(status) statusEl.textContent = status;
+    renderDiagResults(results);
+  });
+  statusEl.textContent = diag.hasWorkingMic ? ('Bäst just nu: ' + diag.bestLabel) : 'Inget test fångade tydligt ljud';
+  if(!diag.hasWorkingMic) document.getElementById('diagGuidance').style.display = 'block';
+}
+function openDiagnostic(){
+  openModal('diagModal');
+  runMicDiagnostic();
+}
+
+function openVoice(){
+  openModal('voiceModal');
+  document.getElementById('transcriptText').innerHTML = '&nbsp;';
+  document.getElementById('parseResult').classList.remove('show');
+  document.getElementById('parseError').style.display = 'none';
+  document.getElementById('voiceFallback').style.display = 'none';
+  document.getElementById('micGuidance').style.display = 'none';
+  micFailStreak = 0;
+  if(!localStorage.getItem('parmen_mic_diag')){
+    document.getElementById('modalStatus').textContent = 'TESTAR MIKROFON (FÖRSTA GÅNGEN)...';
+    performDiagnostic().then(diag=>{
+      if(!diag.hasWorkingMic) document.getElementById('micGuidance').style.display = 'block';
+      startListening();
+    });
+  } else {
+    startListening();
+  }
+}
+function startListening(){
+  document.getElementById('parseResult').classList.remove('show');
+  document.getElementById('parseError').style.display = 'none';
+  if(!recognition) recognition = initRecognition();
+  if(!recognition){
+    document.getElementById('modalStatus').textContent = 'RÖST STÖDS INTE HÄR';
+    document.getElementById('voiceFallback').style.display = 'block';
+    return;
+  }
+  document.getElementById('voiceFallback').style.display = 'none';
+  document.getElementById('modalStatus').textContent = 'LYSSNAR...';
+  document.getElementById('fabBtn').classList.add('listening');
+  recognition.onresult = (ev)=>{
+    micFailStreak = 0;
+    let text = '';
+    for(let i=0;i<ev.results.length;i++) text += ev.results[i][0].transcript;
+    document.getElementById('transcriptText').textContent = text;
+  };
+  recognition.onerror = (ev)=>{
+    document.getElementById('fabBtn').classList.remove('listening');
+    document.getElementById('modalStatus').textContent = 'KUNDE INTE HÖRA — FÖRSÖK IGEN';
+    if(ev.error === 'no-speech' || ev.error === 'audio-capture'){
+      micFailStreak++;
+      if(micFailStreak >= 2) document.getElementById('micGuidance').style.display = 'block';
+    }
+  };
+  recognition.onend = ()=>{
+    document.getElementById('fabBtn').classList.remove('listening');
+    const finalText = document.getElementById('transcriptText').textContent.trim();
+    if(finalText) parseAndFile(finalText);
+  };
+  try{ recognition.start(); }catch(e){}
+}
+function submitFallback(){
+  const text = document.getElementById('voiceFallbackInput').value.trim();
+  if(!text) return;
+  document.getElementById('transcriptText').textContent = text;
+  parseAndFile(text);
+}
+async function parseAndFile(text){
+  document.getElementById('modalStatus').textContent = 'TOLKAR...';
+  try{
+    const res = await fetch(PARSE_FUNCTION_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ text, currentDate: todayISO() })
+    });
+    if(!res.ok) throw new Error('Servern svarade '+res.status);
+    const parsed = await res.json();
+    if(parsed.error) throw new Error(parsed.error);
+
+    document.getElementById('parseTyp').textContent = parsed.typ || '—';
+    document.getElementById('parseTask').textContent = parsed.titel || '—';
+    document.getElementById('parseDeadline').textContent = parsed.deadline ? fmtDate(parsed.deadline) : '—';
+    document.getElementById('parseCategory').textContent = parsed.kategori || '—';
+    document.getElementById('parseResult').classList.add('show');
+    document.getElementById('modalStatus').textContent = 'TILLAGT';
+
+    fileParsedItem(parsed, text);
+  }catch(err){
+    console.error(err);
+    document.getElementById('modalStatus').textContent = 'TOLKNING MISSLYCKADES';
+    document.getElementById('parseError').textContent = 'Kunde inte nå tolkningsfunktionen. Sparat i Inkorgen istället.';
+    document.getElementById('parseError').style.display = 'block';
+    db.ref('inbox').push({ text, time: Date.now() });
+  }
+}
+function fileParsedItem(parsed, rawText){
+  if(parsed.typ === 'inkop'){
+    db.ref('shopping').push({ text: parsed.titel || rawText, source: parsed.kategori || 'Allmänt', done:false });
+  } else if(parsed.typ === 'projekt'){
+    db.ref('projects').push({ title: parsed.titel || rawText, deadline: parsed.deadline || null, priority:'normal', milestones:[], milestoneIndex:0, checklist:[], costs:[] });
+  } else {
+    // uppgift / påminnelse
+    db.ref('reminders').push({ text: parsed.titel || rawText, date: parsed.deadline || null, category: parsed.kategori || null, done:false, source:'Fickminnet' });
+    // om kategorin matchar ett registrerat objekt, logga där också
+    const eqMatch = Object.entries(state.equipment||{}).find(([id,e])=> parsed.kategori && e.name.toLowerCase().includes(parsed.kategori.toLowerCase()));
+    if(eqMatch) db.ref('equipment/'+eqMatch[0]+'/log').push({ time: Date.now(), text: parsed.titel || rawText });
+  }
+}
+function closeVoice(){
+  if(recognition){ try{ recognition.stop(); }catch(e){} }
+  document.getElementById('fabBtn').classList.remove('listening');
+  closeModal('voiceModal');
+}
+
+/* FAB: kort tryck öppnar Fickminnet, långtryck (~700ms) öppnar den
+   dolda mikrofondiagnostiken utan att avslöja den i vanliga menyer. */
+(function wireFabPressAndHold(){
+  const fabBtn = document.getElementById('fabBtn');
+  let longPressTimer = null;
+  let longPressFired = false;
+  const start = ()=>{
+    longPressFired = false;
+    longPressTimer = setTimeout(()=>{ longPressFired = true; openDiagnostic(); }, 700);
+  };
+  const cancel = ()=>{ clearTimeout(longPressTimer); };
+  fabBtn.addEventListener('touchstart', start, { passive:true });
+  fabBtn.addEventListener('mousedown', start);
+  ['touchend','touchcancel','touchmove','mouseleave'].forEach(evt=>fabBtn.addEventListener(evt, cancel));
+  fabBtn.addEventListener('click', ()=>{
+    if(longPressFired){ longPressFired = false; return; }
+    openVoice();
+  });
+})();
+
+/* ================= FRÅGA (AI-assistent) ================= */
+function appendChat(role, text){
+  const log = document.getElementById('chatLog');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+  return div;
+}
+async function askAI(question){
+  appendChat('user', question);
+  const aiDiv = appendChat('ai', '...');
+  try{
+    const context = {
+      projects: Object.values(state.projects||{}).map(p=>({title:p.title, deadline:p.deadline, priority:p.priority})),
+      equipment: Object.values(state.equipment||{}).map(e=>({name:e.name, next:e.next, type:e.type})),
+      shopping: Object.values(state.shopping||{}).filter(i=>!i.done).map(i=>i.text),
+      inventory: Object.values(state.inventory||{}).map(i=>({name:i.name, qty:i.qty, low:i.low}))
+    };
+    const res = await fetch(ASK_FUNCTION_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ question, context, currentDate: todayISO() })
+    });
+    if(!res.ok) throw new Error('Servern svarade '+res.status);
+    const data = await res.json();
+    aiDiv.textContent = data.answer || 'Fick inget svar.';
+  }catch(err){
+    console.error(err);
+    aiDiv.textContent = 'Kunde inte nå assistenten just nu (kontrollera Cloud Function-URL:en).';
+  }
+}
+function askCustom(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim(); if(!text) return;
+  askAI(text);
+  input.value = '';
+}
+
+/* ================= ONBOARDING / GUIDE ================= */
+const onboardSteps = [
+  {q:'Har du någon bil?', type:'fordon'},
+  {q:'Har du någon motorcykel?', type:'fordon'},
+  {q:'Har du en gräsklippare?', type:'maskin'},
+  {q:'Har du brandsläckare hemma?', type:'utrustning'}
+];
+let onboardIndex = 0;
+function openOnboarding(){ onboardIndex = 0; openModal('onboardModal'); renderOnboardStep(); }
+function renderOnboardStep(){
+  const step = onboardSteps[onboardIndex];
+  document.getElementById('onboardProgress').textContent = 'STEG ' + (onboardIndex+1) + ' / ' + onboardSteps.length;
+  document.getElementById('onboardQ').textContent = step.q;
+}
+function onboardAnswer(yes){
+  const step = onboardSteps[onboardIndex];
+  if(yes){
+    const name = prompt('Vad heter den? (du kan fylla i mer i Underhåll sen)');
+    if(name) db.ref('equipment').push({ name, type: step.type });
+  }
+  onboardIndex++;
+  if(onboardIndex >= onboardSteps.length){
+    closeModal('onboardModal');
+  } else {
+    renderOnboardStep();
+  }
+}
+
+/* ================= VECKOVIS KOLL ================= */
+function openWeekly(){ openModal('weeklyModal'); }
+function submitWeekly(){
+  const notes = [];
+  if(document.getElementById('wk1').checked) notes.push('Köpt nytt verktyg — beskriv och lägg till under Underhåll.');
+  if(document.getElementById('wk2').checked) notes.push('Köpt ny maskin — beskriv och lägg till under Underhåll.');
+  if(document.getElementById('wk3').checked) notes.push('Sålt/gjort dig av med något — kolla om något behöver tas bort.');
+  if(document.getElementById('wk4').checked) notes.push('Något har gått sönder — beskriv i Inkorgen.');
+  notes.forEach(text => db.ref('inbox').push({ text, time: Date.now() }));
+  db.ref('meta/lastWeeklyCheck').set(Date.now());
+  ['wk1','wk2','wk3','wk4'].forEach(id=>document.getElementById(id).checked=false);
+  closeModal('weeklyModal');
+}
+</script>
+</body>
+</html>
