@@ -3,7 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Pärmen — digitalt minne</title>
+<title>Fickminne — digitalt minne</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAE/klEQVR4nO3dMW4VRxwG8CFKCjdQpAAhhEROwBGiSOlzg5yBG3ADzpAbpI8U5QicIJYshEyRAhqKIJEiegg/ge3dnZmdN9/v1xnk8Sz+vv3vPu/DpQAAAAAAAAAATOPO3hvY4tHD+x/33gP/e/X6zUlm6WQ2Leyn5xRKMfQGhX4eo5ZhyE0J/rxGK8JQmxH8HKMUYYhNCH6uvYuw6xcXfA72KsI3e3zRUoSfq/bKQ/fWCT436TkNuk4A4ec2euakWwGEnyV65aVLAYSfNXrkpnkBhJ8tWuenaQGEnxpa5qhZAYSfmlrlqUkBhJ8WWuSqegGEn5Zq56tqAYSfHmrmbLdHIWAE1Qrg7E9PtfJWpQDCzx5q5O7bGhsZ1W8/fn/l41//+meItY7Xq7nW1vVqH+foNk+AUc/+x9/Ir/1Z77W+9Lk119qyXu3j7GFr/qa8Cb7um7b0G1pzres+p+Zaa9arfZynYlMBRj37k2VLDqecAHBbqwvg7M9I1uZx9VvPRi3Ak8cPSimlPP/h3y/+/fO/v1u8Zs21vrZezbXWrnebtc4vLhev28uat1KuKsDI4X/77v2nj188vfoq77OXH1avXXOt4/VqrrV1vZvWunf3bKoSTFOA4/DTzsglWFqAKW6Chb+vt+/ef7rUPHWLCzDi2R8OluZzigkAaykA0RSAaApAtEUFcAPMKViSUxOAaApANAUgmgIQTQGIpgBEUwCiKQDRFIBoCkA0BSCaAhBNAYimAERTAKIpANEUgGgKQDQFIJoCEE0BiDb1L8m7rT//+H3vLezip59/2XsLu4ufAKnhLyX72A/iC0C2+AIkXwYkH/uBe4AiCMniJwDZFIBoCkA0BSCaAhBNAYimAERTAKIpANEUgGgKQDQFIJqH4cp8z8V7uO/24ifAbOEvZc5jaiW+AGSLL8CMlwszHlMr7gGKwCSLnwBkUwCiKQDRFIBoCkA0BSCaAhBNAYimAERTAKIpANEUgGgehitZz8978O+q+AmQFP5S8o73JvEFIFt8AdIuCdKO9ybuAYpQJIufAGRTAKIpANEUgGgKQDQFIJoCEE0BiKYARFMAoikA0RSAaApANE+DllJePB3vn+HZyw97byFC/AQYMfyljLuv2cQXgGzxBRj1UmPUfc3GnC3Clix+ApBNAYimAERTAKIpANEUgGgKQDQFIJoCEE0BiKYARFMAonkYrszxW1P8F+/rxE+AGcJfyjzH0Vt8AcgWX4BZLh1mOY7e3AMU4UkWPwHIpgBEUwCiLSrAq9dv7rTaCNSyJKcmANEUgGgKQDQFINriArgRZmRL82kCEE0BiLaqAC6DGNGaXE4xAc4vLsu9u2d7byPGvbtn5fzicu9tVLG6AKNNASXoY9Twr83jVI9Dn19cliePH+y9jamNGP4tNp/FHz28/7HGRmCtLVcjU9wDwFqbCzDavQBZtubPBCBalQKYAuyhRu6qTQAloKdaeXMJRLSqBTAF6KFmzqpPACWgpdr5anIJpAS00CJXze4BlICaWuWp6U2wElBDyxw1fxVICdiidX66vAyqBKzRIzfdfg6gBCzRKy9dfxCmBNxGz5zsFkjvI+DYHifI3R6FMA343F55GCKEpkGuvU+EQxTgQBFy7B38gyE2cUwR5jVK8A+G2swxRZjHaME/GHJTX6IMp2fU0H9u+A1eRynGcQphBwAAAAAAACDBf1fgbltWE/v5AAAAAElFTkSuQmCC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fickminne">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1c1a17">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -206,7 +213,7 @@
 
 <div id="gateScreen">
   <div class="gate-box">
-    <div class="brand">P&Auml;R<span>M</span>EN</div>
+    <div class="brand">FICK<span>MINNE</span></div>
     <div class="subtitle">L&Aring;ST &middot; ANGE PIN F&Ouml;R &Aring;TKOMST</div>
     <input type="password" id="gatePinInput" placeholder="PIN" inputmode="numeric" onkeydown="if(event.key==='Enter')submitGatePin();">
     <button class="add-btn" style="width:100%;padding:12px;" onclick="submitGatePin()">L&aring;s upp</button>
@@ -217,7 +224,7 @@
 <div class="app">
   <header>
     <div>
-      <div class="brand">P&Auml;R<span>M</span>EN</div>
+      <div class="brand">FICK<span>MINNE</span></div>
       <div class="subtitle"><span class="dot" id="connDot"></span><span id="connLabel">ansluter...</span></div>
     </div>
     <div class="header-icons">
@@ -233,6 +240,8 @@
     <div class="tab" data-tab="projekt">Projekt</div>
     <div class="tab" data-tab="underhall">Underh&aring;ll</div>
     <div class="tab" data-tab="inkop">Ink&ouml;p</div>
+    <div class="tab" data-tab="paminnelser">P&aring;minnelser</div>
+    <div class="tab" data-tab="framgangar">Framg&aring;ngar</div>
     <div class="tab" data-tab="fraga">Fr&aring;ga</div>
     <div class="tab" data-tab="inkorg">Inkorg <span id="inkorgCount" style="color:var(--rust)"></span></div>
   </nav>
@@ -281,7 +290,7 @@
     </section>
 
     <section class="panel" id="fraga">
-      <div class="section-label">Fr&aring;ga P&auml;rmen</div>
+      <div class="section-label">Fr&aring;ga Fickminne</div>
       <div class="chat" id="chatLog">
         <div class="chat-msg ai">Fr&aring;ga vad som helst om dina projekt, fordon eller ink&ouml;p. Jag svarar utifr&aring;n det som faktiskt finns registrerat.</div>
       </div>
@@ -294,6 +303,30 @@
         <input type="text" id="chatInput" placeholder="Skriv en egen fr&aring;ga...">
         <button onclick="askCustom()">Fr&aring;ga</button>
       </div>
+    </section>
+
+    <section class="panel" id="paminnelser">
+      <div class="section-label">Aktiva p&aring;minnelser</div>
+      <div id="reminderList"><div class="empty-note">Inga p&aring;minnelser &auml;n.</div></div>
+      <div class="log-input" style="margin-top:14px;">
+        <input type="text" id="reminderTextInput" placeholder="T.ex. K&ouml;p kattsand...">
+        <input type="date" id="reminderDateInput" style="flex:0 0 140px;">
+        <button onclick="addReminderManual()">L&auml;gg till</button>
+      </div>
+
+      <div class="section-label" style="margin-top:22px;">Avklarade</div>
+      <div id="reminderDoneList"><div class="empty-note">Inget avklarat &auml;n.</div></div>
+    </section>
+
+    <section class="panel" id="framgangar">
+      <div class="section-label">Logga en framg&aring;ng</div>
+      <div class="log-input">
+        <input type="text" id="winTextInput" placeholder="T.ex. Tv&auml;ttade bilen, K&ouml;pte virke inf&ouml;r renovering...">
+        <button onclick="addWinManual()">L&auml;gg till</button>
+      </div>
+
+      <div class="section-label" style="margin-top:22px;">Senaste framg&aring;ngarna</div>
+      <div id="winsList"><div class="empty-note">Inget loggat &auml;n &mdash; b&ouml;rja med n&aring;got litet idag.</div></div>
     </section>
 
     <section class="panel" id="inkorg">
@@ -479,19 +512,19 @@
    Se SETUP.md för steg-för-steg-instruktioner.
 =================================================================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyBrpeKXmaCx4cnsfO55_1fNCRaq7Ow_mS8",
-  authDomain: "fickminne.firebaseapp.com",
-  databaseURL: "https://fickminne-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "fickminne",
-  storageBucket: "fickminne.firebasestorage.app",
-  messagingSenderId: "245268929808",
-  appId: "1:245268929808:web:2c62a1fce9d2aff91e1995"
+  apiKey: "DIN_API_KEY",
+  authDomain: "DITT-PROJEKT.firebaseapp.com",
+  databaseURL: "https://DITT-PROJEKT-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "DITT-PROJEKT",
+  storageBucket: "DITT-PROJEKT.appspot.com",
+  messagingSenderId: "0000000000",
+  appId: "1:0000000000:web:xxxxxxxxxxxx"
 };
-const PARSE_FUNCTION_URL = "https://europe-west1-fickminne.cloudfunctions.net/parsefickminne";
-const ASK_FUNCTION_URL   = "https://europe-west1-fickminne.cloudfunctions.net/askassistant";
-const LOOKUP_FUNCTION_URL = "https://europe-west1-fickminne.cloudfunctions.net/lookupparts";
-const AUTH_FUNCTION_URL   = "https://europe-west1-fickminne.cloudfunctions.net/authenticate";
-const CALENDAR_FEED_URL   = "https://europe-west1-fickminne.cloudfunctions.net/calendarfeed";
+const PARSE_FUNCTION_URL = "https://REGION-DITT-PROJEKT.cloudfunctions.net/parseFickminne";
+const ASK_FUNCTION_URL   = "https://REGION-DITT-PROJEKT.cloudfunctions.net/askAssistant";
+const LOOKUP_FUNCTION_URL = "https://REGION-DITT-PROJEKT.cloudfunctions.net/lookupParts";
+const AUTH_FUNCTION_URL   = "https://REGION-DITT-PROJEKT.cloudfunctions.net/authenticate";
+const CALENDAR_FEED_URL   = "https://REGION-DITT-PROJEKT.cloudfunctions.net/calendarFeed";
 const COMPRESS_MAX_DIM = 1600;  // längsta sidan i pixlar efter komprimering
 const COMPRESS_QUALITY = 0.8;   // 0–1, JPEG-kvalitet
 /* =================================================================== */
@@ -573,7 +606,7 @@ async function submitPin(){
   catch(e){ err.textContent = 'Fel PIN, försök igen.'; err.style.display = 'block'; }
 }
 
-const state = { projects:{}, equipment:{}, shopping:{}, inventory:{}, inbox:{}, templates:{}, reminders:{} };
+const state = { projects:{}, equipment:{}, shopping:{}, inventory:{}, inbox:{}, templates:{}, reminders:{}, wins:{} };
 
 db.ref('.info/connected').on('value', snap=>{
   const ok = snap.val() === true;
@@ -594,10 +627,32 @@ bind('shopping','shopping', renderShopping);
 bind('inventory','inventory', renderInventory);
 bind('inbox','inbox', renderInbox);
 bind('checklistTemplates','templates', renderTemplates);
-bind('reminders','reminders', ()=>{});
+bind('reminders','reminders', renderReminders);
+bind('wins','wins', renderWins);
 
 /* ---------- helpers ---------- */
 function esc(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* Skrivningar kan tyst rulla tillbaka om de skickas i ett kort fönster
+   precis efter inloggning, innan anslutningen hunnit uppdatera sin
+   autentisering fullt ut (känd Firebase-fallgrop). safeWrite fångar det:
+   ett misslyckat försök väntar kort och provar igen en gång, och om det
+   fortfarande failar får användaren ett tydligt felmeddelande istället
+   för att posten bara försvinner utan förklaring. */
+function safeWrite(path, data, label){
+  return db.ref(path).push(data).catch(err=>{
+    console.error('Skrivning misslyckades, försöker igen om 800ms:', err);
+    return new Promise(resolve=>{
+      setTimeout(()=>{
+        db.ref(path).push(data).then(resolve).catch(err2=>{
+          console.error('Skrivning misslyckades igen:', err2);
+          alert('Kunde inte spara' + (label ? (' "'+label+'"') : '') + '. Kontrollera att du fortfarande är inloggad med redigerings-PIN (tryck "Lås upp" i headern om inte) och försök igen.');
+          resolve(null);
+        });
+      }, 800);
+    });
+  });
+}
 function todayISO(){ const d=new Date(); return d.toISOString().slice(0,10); }
 function daysFromToday(dateStr){
   if(!dateStr) return null;
@@ -659,9 +714,11 @@ function renderIdag(){
     const dl = daysFromToday(p.deadline);
     if(dl!==null && dl<0) late.push([id,p,dl]);
     else if(dl!==null && dl<=7) soon.push([id,p,dl]);
-    const lt = lastLogTime(p.log);
-    const idleDays = lt ? Math.floor((Date.now()-lt)/86400000) : 999;
-    if(idleDays >= 14) stalled.push([id,p,idleDays]);
+    const lt = lastLogTime(p.log) || p.createdAt || null;
+    if(lt){
+      const idleDays = Math.floor((Date.now()-lt)/86400000);
+      if(idleDays >= 14) stalled.push([id,p,idleDays]);
+    }
   });
 
   if(late.length || soon.length){
@@ -724,26 +781,79 @@ function renderIdag(){
 function goToProject(id){ document.querySelector('[data-tab=projekt]').click(); setTimeout(()=>toggleDetail('proj-'+id),50); }
 function goToEquipment(id){ document.querySelector('[data-tab=underhall]').click(); setTimeout(()=>toggleDetail('eq-'+id),50); }
 function markReminderDone(id){ db.ref('reminders/'+id+'/done').set(true); }
+function unmarkReminderDone(id){ db.ref('reminders/'+id+'/done').set(false); }
+function deleteReminder(id){ db.ref('reminders/'+id).remove(); }
+
+/* ================= PÅMINNELSER ================= */
+function renderReminders(){
+  const rows = Object.entries(state.reminders||{});
+  const active = rows.filter(([id,r])=>!r.done).sort((a,b)=>{
+    const da = a[1].date || '9999-99-99', db_ = b[1].date || '9999-99-99';
+    return da.localeCompare(db_);
+  });
+  const done = rows.filter(([id,r])=>r.done).sort((a,b)=>(b[1].time||0)-(a[1].time||0)).slice(0,20);
+
+  document.getElementById('reminderList').innerHTML = active.length ? active.map(([id,r])=>{
+    const dl = r.date ? daysFromToday(r.date) : null;
+    return `<div class="card"><div class="row"><div><div class="item-title">${esc(r.text)}</div><div class="item-meta">${r.date?fmtDate(r.date):'INGET DATUM'}${r.category?(' · '+esc(r.category)):''}</div></div>
+      <div style="display:flex;align-items:center;gap:8px;">${dl!==null?stampFor(dl):''}<span class="pill" onclick="markReminderDone('${id}')">Klar</span></div></div></div>`;
+  }).join('') : '<div class="empty-note">Inga påminnelser just nu.</div>';
+
+  document.getElementById('reminderDoneList').innerHTML = done.length ? done.map(([id,r])=>{
+    return `<div class="card" style="opacity:.6;"><div class="row"><div><div class="item-title" style="text-decoration:line-through;">${esc(r.text)}</div></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span class="pill ghost" onclick="unmarkReminderDone('${id}')">Ångra</span></div></div></div>`;
+  }).join('') : '<div class="empty-note">Inget avklarat än.</div>';
+}
+function addReminderManual(){
+  const textInput = document.getElementById('reminderTextInput');
+  const dateInput = document.getElementById('reminderDateInput');
+  const text = textInput.value.trim(); if(!text) return;
+  safeWrite('reminders', { text, date: dateInput.value || null, done:false, source:'manuell' }, text);
+  textInput.value=''; dateInput.value='';
+}
+
+/* ================= FRAMGÅNGAR ================= */
+function renderWins(){
+  const rows = Object.entries(state.wins||{}).sort((a,b)=>(b[1].time||0)-(a[1].time||0));
+  if(!rows.length){ document.getElementById('winsList').innerHTML = '<div class="empty-note">Inget loggat än — börja med något litet idag.</div>'; return; }
+  document.getElementById('winsList').innerHTML = rows.map(([id,w])=>{
+    return `<div class="card"><div class="row"><div><div class="item-title">${esc(w.text)}</div><div class="item-meta">${fmtDate(w.date)}${w.projectTitle?(' · '+esc(w.projectTitle)):''}</div></div><div class="stamp ok">🏆</div></div></div>`;
+  }).join('');
+}
+function addWin(text, projectTitle){
+  if(!text || !text.trim()) return;
+  safeWrite('wins', { text: text.trim(), date: todayISO(), time: Date.now(), projectTitle: projectTitle||null }, text.trim());
+}
+function addWinManual(){
+  const input = document.getElementById('winTextInput');
+  const text = input.value.trim(); if(!text) return;
+  addWin(text, null);
+  input.value = '';
+}
 
 /* ================= PROJEKT ================= */
 function renderProjects(){
-  const rows = Object.entries(state.projects||{});
+  const rows = Object.entries(state.projects||{}).sort((a,b)=>{
+    const fa = a[1].status==='klar' ? 1 : 0, fb = b[1].status==='klar' ? 1 : 0;
+    return fa - fb;
+  });
   if(!rows.length){ document.getElementById('projektList').innerHTML = '<div class="empty-note">Inga projekt än.</div>'; return; }
   let html = '';
   rows.forEach(([id,p])=>{
     const dl = daysFromToday(p.deadline);
+    const finished = p.status === 'klar';
     const milestones = p.milestones || [];
     const idx = p.milestoneIndex || 0;
-    const progress = milestones.length ? Math.round((idx/milestones.length)*100) : (p.progress||0);
+    const progress = finished ? 100 : (milestones.length ? Math.round((idx/milestones.length)*100) : (p.progress||0));
     const checklist = p.checklist || [];
     const log = p.log ? Object.entries(p.log).sort((a,b)=>b[1].time-a[1].time) : [];
     const costs = p.costs || [];
     const totalCost = costs.reduce((s,c)=>s+(Number(c.amount)||0),0);
 
-    html += `<div class="card" onclick="toggleDetail('proj-${id}')">
+    html += `<div class="card" onclick="toggleDetail('proj-${id}')" style="${finished?'opacity:.65;':''}">
       <div class="row"><div><div class="item-title">${esc(p.title)}</div>
       <div class="item-meta">${p.priority?('PRIO '+p.priority.toUpperCase()+' · '):''}${p.deadline?('DEADLINE '+fmtDate(p.deadline)):'INGEN DEADLINE'}</div></div>
-      ${stampFor(dl)}</div>
+      ${finished ? '<div class="stamp ok">AVSLUTAT 🏆</div>' : stampFor(dl)}</div>
       <div class="progress-track"><div class="progress-fill" style="width:${progress}%"></div></div>
     </div>
     <div class="detail" id="detail-proj-${id}">`;
@@ -757,6 +867,10 @@ function renderProjects(){
       html += '</div>';
     }
 
+    html += finished
+      ? `<button class="add-btn" style="margin-bottom:10px;" onclick="reopenProject('${id}')">Återuppta projekt</button>`
+      : `<button class="add-btn" style="margin-bottom:10px;" onclick="finishProject('${id}','${esc(p.title).replace(/'/g,"\\'")}')">Avsluta projekt 🏆</button>`;
+
     html += '<div class="checklist">';
     checklist.forEach((c,i)=>{
       html += `<label><input type="checkbox" ${c.done?'checked':''} onchange="toggleChecklistItem('${id}',${i},this.checked)"><span>${esc(c.text)}</span></label>`;
@@ -766,7 +880,7 @@ function renderProjects(){
     log.forEach(([lid,l])=>{
       html += `<div class="log-entry"><span class="log-time">${new Date(l.time).toLocaleString('sv-SE')}</span>${esc(l.text)}</div>`;
     });
-    html += `<div class="log-input"><input type="text" id="loginput-${id}" placeholder="Logga dagens framsteg..."><button onclick="addProjectLog('${id}')">Spara</button></div>`;
+    html += `<div class="log-input"><input type="text" id="loginput-${id}" placeholder="Logga dagens framsteg..."><button onclick="addProjectLog('${id}')">Spara</button><button onclick="addProjectLogAsWin('${id}','${esc(p.title).replace(/'/g,"\\'")}')" title="Logga och lägg till som framgång">🏆</button></div>`;
 
     const images = p.images ? Object.entries(p.images) : [];
     html += `<div class="gallery" id="gallery-${id}">`;
@@ -788,6 +902,14 @@ function renderProjects(){
   document.getElementById('projektList').innerHTML = html;
   reapplyOpenDetails();
 }
+function finishProject(id, title){
+  db.ref('projects/'+id+'/status').set('klar');
+  db.ref('projects/'+id+'/log').push({ time: Date.now(), text: 'Projektet markerat som klart.' });
+  addWin('Avslutade projekt: '+title, null);
+}
+function reopenProject(id){
+  db.ref('projects/'+id+'/status').set(null);
+}
 function openAddProject(){ openModal('addProjectModal'); }
 function submitAddProject(){
   const title = document.getElementById('npTitle').value.trim();
@@ -796,7 +918,7 @@ function submitAddProject(){
   const priority = document.getElementById('npPriority').value;
   const milestonesRaw = document.getElementById('npMilestones').value.trim();
   const milestones = milestonesRaw ? milestonesRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
-  db.ref('projects').push({ title, deadline, priority, milestones, milestoneIndex:0, checklist:[], costs:[] });
+  safeWrite('projects', { title, deadline, priority, milestones, milestoneIndex:0, checklist:[], costs:[], createdAt: Date.now() }, title);
   closeModal('addProjectModal');
   document.getElementById('npTitle').value=''; document.getElementById('npDeadline').value=''; document.getElementById('npMilestones').value='';
 }
@@ -819,6 +941,13 @@ function addProjectLog(id){
   const input = document.getElementById('loginput-'+id);
   const text = input.value.trim(); if(!text) return;
   db.ref('projects/'+id+'/log').push({ time: Date.now(), text });
+  input.value='';
+}
+function addProjectLogAsWin(id, title){
+  const input = document.getElementById('loginput-'+id);
+  const text = input.value.trim(); if(!text) return;
+  db.ref('projects/'+id+'/log').push({ time: Date.now(), text });
+  addWin(text, title);
   input.value='';
 }
 function addCost(id){
@@ -951,7 +1080,7 @@ function submitAddEquipment(){
   const type = document.getElementById('neType').value;
   const year = document.getElementById('neYear').value.trim();
   const next = document.getElementById('neNext').value || null;
-  db.ref('equipment').push({ name, type, year, next });
+  safeWrite('equipment', { name, type, year, next }, name);
   closeModal('addEquipmentModal');
   document.getElementById('neName').value=''; document.getElementById('neYear').value=''; document.getElementById('neNext').value='';
 }
@@ -1055,7 +1184,7 @@ function renderShopping(){
 function addShoppingItem(){
   const input = document.getElementById('shopInput');
   const text = input.value.trim(); if(!text) return;
-  db.ref('shopping').push({ text, source:'Allmänt', done:false });
+  safeWrite('shopping', { text, source:'Allmänt', done:false }, text);
   input.value='';
 }
 function toggleShoppingDone(id, done){ db.ref('shopping/'+id+'/done').set(done); }
@@ -1084,7 +1213,7 @@ function submitAddInventory(){
   const name = document.getElementById('niName').value.trim(); if(!name) return;
   const qty = Number(document.getElementById('niQty').value)||0;
   const low = Number(document.getElementById('niLow').value)||0;
-  db.ref('inventory').push({ name, qty, low });
+  safeWrite('inventory', { name, qty, low }, name);
   closeModal('addInventoryModal');
   document.getElementById('niName').value='';
 }
@@ -1111,7 +1240,7 @@ function renderInbox(){
 function addInboxNote(){
   const input = document.getElementById('inboxInput');
   const text = input.value.trim(); if(!text) return;
-  db.ref('inbox').push({ text, time: Date.now() });
+  safeWrite('inbox', { text, time: Date.now() }, text);
   input.value='';
 }
 function resolveInboxToLog(inboxId, targetId){
@@ -1189,7 +1318,7 @@ async function performDiagnostic(onProgress){
     bestLabel: best ? best.label : null,
     results: results.map(r=>({ label:r.label, level:r.level||0, error:r.error||null }))
   };
-  localStorage.setItem('parmen_mic_diag', JSON.stringify(diag));
+  localStorage.setItem('fickminne_mic_diag', JSON.stringify(diag));
   return diag;
 }
 function renderDiagResults(results){
@@ -1222,7 +1351,7 @@ function openVoice(){
   document.getElementById('voiceFallback').style.display = 'none';
   document.getElementById('micGuidance').style.display = 'none';
   micFailStreak = 0;
-  if(!localStorage.getItem('parmen_mic_diag')){
+  if(!localStorage.getItem('fickminne_mic_diag')){
     document.getElementById('modalStatus').textContent = 'TESTAR MIKROFON (FÖRSTA GÅNGEN)...';
     performDiagnostic().then(diag=>{
       if(!diag.hasWorkingMic) document.getElementById('micGuidance').style.display = 'block';
@@ -1295,17 +1424,17 @@ async function parseAndFile(text){
     document.getElementById('modalStatus').textContent = 'TOLKNING MISSLYCKADES';
     document.getElementById('parseError').textContent = 'Kunde inte nå tolkningsfunktionen. Sparat i Inkorgen istället.';
     document.getElementById('parseError').style.display = 'block';
-    db.ref('inbox').push({ text, time: Date.now() });
+    safeWrite('inbox', { text, time: Date.now() }, text);
   }
 }
 function fileParsedItem(parsed, rawText){
   if(parsed.typ === 'inkop'){
-    db.ref('shopping').push({ text: parsed.titel || rawText, source: parsed.kategori || 'Allmänt', done:false });
+    safeWrite('shopping', { text: parsed.titel || rawText, source: parsed.kategori || 'Allmänt', done:false }, parsed.titel || rawText);
   } else if(parsed.typ === 'projekt'){
-    db.ref('projects').push({ title: parsed.titel || rawText, deadline: parsed.deadline || null, priority:'normal', milestones:[], milestoneIndex:0, checklist:[], costs:[] });
+    safeWrite('projects', { title: parsed.titel || rawText, deadline: parsed.deadline || null, priority:'normal', milestones:[], milestoneIndex:0, checklist:[], costs:[], createdAt: Date.now() }, parsed.titel || rawText);
   } else {
     // uppgift / påminnelse
-    db.ref('reminders').push({ text: parsed.titel || rawText, date: parsed.deadline || null, category: parsed.kategori || null, done:false, source:'Fickminnet' });
+    safeWrite('reminders', { text: parsed.titel || rawText, date: parsed.deadline || null, category: parsed.kategori || null, done:false, source:'Fickminnet' }, parsed.titel || rawText);
     // om kategorin matchar ett registrerat objekt, logga där också
     const eqMatch = Object.entries(state.equipment||{}).find(([id,e])=> parsed.kategori && e.name.toLowerCase().includes(parsed.kategori.toLowerCase()));
     if(eqMatch) db.ref('equipment/'+eqMatch[0]+'/log').push({ time: Date.now(), text: parsed.titel || rawText });
@@ -1394,7 +1523,7 @@ function onboardAnswer(yes){
   const step = onboardSteps[onboardIndex];
   if(yes){
     const name = prompt('Vad heter den? (du kan fylla i mer i Underhåll sen)');
-    if(name) db.ref('equipment').push({ name, type: step.type });
+    if(name) safeWrite('equipment', { name, type: step.type }, name);
   }
   onboardIndex++;
   if(onboardIndex >= onboardSteps.length){
@@ -1412,7 +1541,7 @@ function submitWeekly(){
   if(document.getElementById('wk2').checked) notes.push('Köpt ny maskin — beskriv och lägg till under Underhåll.');
   if(document.getElementById('wk3').checked) notes.push('Sålt/gjort dig av med något — kolla om något behöver tas bort.');
   if(document.getElementById('wk4').checked) notes.push('Något har gått sönder — beskriv i Inkorgen.');
-  notes.forEach(text => db.ref('inbox').push({ text, time: Date.now() }));
+  notes.forEach(text => safeWrite('inbox', { text, time: Date.now() }, text));
   db.ref('meta/lastWeeklyCheck').set(Date.now());
   ['wk1','wk2','wk3','wk4'].forEach(id=>document.getElementById(id).checked=false);
   closeModal('weeklyModal');

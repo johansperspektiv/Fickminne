@@ -1,0 +1,11 @@
+{
+  "name": "parmen-functions",
+  "description": "Cloud Functions för Pärmen - Fickminnet-tolkning och Fråga-assistenten",
+  "engines": { "node": "20" },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-functions": "^5.0.0",
+    "firebase-admin": "^12.0.0",
+    "cors": "^2.8.5"
+  }
+}
