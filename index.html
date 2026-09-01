@@ -875,7 +875,7 @@ function renderProjects(){
       html += '<div class="milestones">';
       milestones.forEach((m,i)=>{
         const cls = i<idx ? 'done' : (i===idx ? 'current' : '');
-        html += `<div class="milestone ${cls}" onclick="event.stopPropagation();advanceMilestone('${id}',${i})">${esc(m)}</div>`;
+        html += `<div class="milestone ${cls}" onclick="event.stopPropagation();setMilestone('${id}',${i})">${esc(m)}</div>`;
       });
       html += '</div>';
     }
@@ -943,11 +943,28 @@ function submitAddProject(){
   closeModal('addProjectModal');
   document.getElementById('npTitle').value=''; document.getElementById('npDeadline').value=''; document.getElementById('npMilestones').value='';
 }
-function advanceMilestone(id, clickedIndex){
+function setMilestone(id, targetIndex){
   const p = state.projects[id]; if(!p) return;
-  const newIndex = clickedIndex + 1 <= (p.milestones||[]).length ? clickedIndex+1 : clickedIndex;
+  const milestones = p.milestones || [];
+  const currentIndex = p.milestoneIndex || 0;
+
+  let newIndex, confirmMsg, logMsg;
+  if(targetIndex < currentIndex){
+    // klick på en redan avklarad milstolpe = ångra tillbaka till precis den
+    newIndex = targetIndex;
+    confirmMsg = 'Ångra tillbaka till innan "'+milestones[targetIndex]+'"?';
+    logMsg = 'Milstolpe återställd till: '+(milestones[newIndex] || 'start');
+  } else {
+    // klick på nuvarande eller en senare = markera klar t.o.m. den
+    newIndex = targetIndex + 1;
+    confirmMsg = 'Markera "'+milestones[targetIndex]+'" som klar?';
+    logMsg = 'Milstolpe uppnådd: '+milestones[targetIndex];
+  }
+  if(newIndex === currentIndex) return; // redan där, gör inget (förhindrar dubbelloggar)
+  if(!confirm(confirmMsg)) return; // extra skydd mot att man råkar nudda den
+
   db.ref('projects/'+id+'/milestoneIndex').set(newIndex);
-  db.ref('projects/'+id+'/log').push({ time: Date.now(), text: 'Milstolpe uppnådd: '+p.milestones[clickedIndex] });
+  db.ref('projects/'+id+'/log').push({ time: Date.now(), text: logMsg });
 }
 function toggleChecklistItem(id, idx, done){ db.ref(`projects/${id}/checklist/${idx}/done`).set(done); }
 function addChecklistItem(id, text){ if(!text.trim())return; db.ref(`projects/${id}/checklist`).push ? addToArray('projects/'+id+'/checklist',{text:text.trim(),done:false}) : null; }
@@ -1076,6 +1093,25 @@ function renderEquipment(){
     </div>
     <div class="detail" id="detail-eq-${id}">`;
 
+    const info = e.info || [];
+    html += `<div class="item-meta" style="margin-bottom:4px;">INFORMATION</div>`;
+    if(info.length){
+      html += `<div class="cklist-wrap">`;
+      info.forEach((f,i)=>{
+        html += `<div class="cklist-row">
+          <label style="color:var(--ink);"><span><b>${esc(f.label)}:</b> ${esc(f.value)}</span></label>
+          <div class="cklist-actions">
+            <button onclick="editInfo('${id}',${i})" title="Redigera">✎</button>
+            <button onclick="removeInfo('${id}',${i})" title="Ta bort">✕</button>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    } else {
+      html += `<div class="empty-note">Ingen information tillagd än, t.ex. däckdimension eller åtdragningsmoment.</div>`;
+    }
+    html += `<div class="log-input"><input type="text" id="infolabel-${id}" placeholder="T.ex. Åtdragningsmoment hjul" style="flex:1;"><input type="text" id="infovalue-${id}" placeholder="T.ex. 110 Nm" style="flex:1;"><button onclick="addInfo('${id}')">L&auml;gg till</button></div>`;
+
     const specs = e.specs || [];
     const indexed = specs.map((s,i)=>({...s, idx:i}));
     const confirmed = indexed.filter(s=>s.confirmed);
@@ -1106,6 +1142,7 @@ function renderEquipment(){
       });
       html += `</div>`;
     }
+    html += `<div class="log-input"><input type="text" id="specinput-${id}" placeholder="Lägg till manuellt..." onkeydown="if(event.key==='Enter'){addSpecManual('${id}');}"><button onclick="addSpecManual('${id}')">L&auml;gg till</button></div>`;
     html += `<button class="add-btn" id="lookupbtn-${id}" style="margin:6px 0 4px;" onclick="lookupParts('${id}')">Slå upp reservdelar (AI)</button>`;
 
     log.forEach(([lid,l])=>{
@@ -1168,6 +1205,33 @@ function editSpec(id, idx){
 }
 function removeSpec(id, idx){
   removeFromArray('equipment/'+id+'/specs', idx);
+}
+function addSpecManual(id){
+  const input = document.getElementById('specinput-'+id);
+  const text = input.value.trim(); if(!text) return;
+  addToArray('equipment/'+id+'/specs', { text, confirmed:true });
+  input.value = '';
+}
+function addInfo(id){
+  const labelInput = document.getElementById('infolabel-'+id);
+  const valueInput = document.getElementById('infovalue-'+id);
+  const label = labelInput.value.trim();
+  const value = valueInput.value.trim();
+  if(!label || !value) return;
+  addToArray('equipment/'+id+'/info', { label, value });
+  labelInput.value = ''; valueInput.value = '';
+}
+function editInfo(id, idx){
+  const e = state.equipment[id]; if(!e) return;
+  const current = (e.info||[])[idx]; if(!current) return;
+  const label = prompt('Etikett:', current.label);
+  if(label === null || !label.trim()) return;
+  const value = prompt('Värde:', current.value);
+  if(value === null || !value.trim()) return;
+  db.ref(`equipment/${id}/info/${idx}`).set({ label: label.trim(), value: value.trim() });
+}
+function removeInfo(id, idx){
+  removeFromArray('equipment/'+id+'/info', idx);
 }
 async function lookupParts(id){
   const e = state.equipment[id]; if(!e) return;
