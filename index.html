@@ -203,10 +203,23 @@
   body.viewer-mode .pill,
   body.viewer-mode .qty-btn,
   body.viewer-mode .fab,
+  body.viewer-mode .cklist-actions,
   body.viewer-mode .widget-preview{ display:none !important; }
   body.viewer-mode input[type=checkbox],
   body.viewer-mode .milestone{ pointer-events:none; opacity:.55; }
   .lock-btn.is-editor{ color:var(--olive); border-color:var(--olive); }
+
+  .cklist-wrap{ margin:8px 0 4px; }
+  .cklist-row{ display:flex; align-items:center; justify-content:space-between; gap:6px; padding:5px 0; border-top:1px dashed var(--line); }
+  .cklist-row:first-child{ border-top:none; }
+  .cklist-row label{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-dim); flex:1; min-width:0; }
+  .cklist-row label span{ overflow-wrap:anywhere; }
+  .cklist-row input[type=checkbox]{ accent-color:var(--olive); width:15px; height:15px; flex-shrink:0; }
+  .cklist-row input:checked + span{ color:var(--ink); text-decoration:line-through; text-decoration-color:var(--olive); }
+  .cklist-actions{ display:flex; gap:1px; flex-shrink:0; }
+  .cklist-actions button{ background:none; border:none; color:var(--ink-dim); font-size:14px; padding:3px 5px; cursor:pointer; line-height:1; }
+  .cklist-actions button:active{ color:var(--rust); }
+  .cklist-actions button:disabled{ opacity:.25; }
 </style>
 </head>
 <body>
@@ -871,9 +884,17 @@ function renderProjects(){
       ? `<button class="add-btn" style="margin-bottom:10px;" onclick="reopenProject('${id}')">Återuppta projekt</button>`
       : `<button class="add-btn" style="margin-bottom:10px;" onclick="finishProject('${id}','${esc(p.title).replace(/'/g,"\\'")}')">Avsluta projekt 🏆</button>`;
 
-    html += '<div class="checklist">';
+    html += '<div class="cklist-wrap">';
     checklist.forEach((c,i)=>{
-      html += `<label><input type="checkbox" ${c.done?'checked':''} onchange="toggleChecklistItem('${id}',${i},this.checked)"><span>${esc(c.text)}</span></label>`;
+      html += `<div class="cklist-row">
+        <label><input type="checkbox" ${c.done?'checked':''} onchange="toggleChecklistItem('${id}',${i},this.checked)"><span>${esc(c.text)}</span></label>
+        <div class="cklist-actions">
+          <button onclick="moveChecklistItem('${id}',${i},-1)" ${i===0?'disabled':''} title="Flytta upp">↑</button>
+          <button onclick="moveChecklistItem('${id}',${i},1)" ${i===checklist.length-1?'disabled':''} title="Flytta ner">↓</button>
+          <button onclick="editChecklistItem('${id}',${i})" title="Redigera">✎</button>
+          <button onclick="deleteChecklistItem('${id}',${i})" title="Ta bort">✕</button>
+        </div>
+      </div>`;
     });
     html += `</div><div class="log-input"><input type="text" placeholder="Ny punkt på checklistan..." onkeydown="if(event.key==='Enter'){addChecklistItem('${id}',this.value);this.value='';}"><button onclick="const i=this.previousElementSibling;addChecklistItem('${id}',i.value);i.value='';">L&auml;gg till</button></div>`;
 
@@ -930,6 +951,24 @@ function advanceMilestone(id, clickedIndex){
 }
 function toggleChecklistItem(id, idx, done){ db.ref(`projects/${id}/checklist/${idx}/done`).set(done); }
 function addChecklistItem(id, text){ if(!text.trim())return; db.ref(`projects/${id}/checklist`).push ? addToArray('projects/'+id+'/checklist',{text:text.trim(),done:false}) : null; }
+function editChecklistItem(id, idx){
+  const p = state.projects[id]; if(!p) return;
+  const current = (p.checklist||[])[idx]; if(!current) return;
+  const text = prompt('Redigera punkt:', current.text);
+  if(text === null || !text.trim()) return;
+  db.ref(`projects/${id}/checklist/${idx}/text`).set(text.trim());
+}
+function deleteChecklistItem(id, idx){
+  removeFromArray('projects/'+id+'/checklist', idx);
+}
+function moveChecklistItem(id, idx, dir){
+  const p = state.projects[id]; if(!p) return;
+  const arr = (p.checklist||[]).slice();
+  const newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= arr.length) return;
+  const tmp = arr[idx]; arr[idx] = arr[newIdx]; arr[newIdx] = tmp;
+  db.ref('projects/'+id+'/checklist').set(arr);
+}
 function addToArray(path, item){
   return db.ref(path).once('value').then(snap=>{
     const arr = snap.val() || [];
@@ -1038,17 +1077,32 @@ function renderEquipment(){
     <div class="detail" id="detail-eq-${id}">`;
 
     const specs = e.specs || [];
-    const confirmed = specs.filter(s=>s.confirmed);
-    const pending = specs.map((s,i)=>({...s, idx:i})).filter(s=>!s.confirmed);
+    const indexed = specs.map((s,i)=>({...s, idx:i}));
+    const confirmed = indexed.filter(s=>s.confirmed);
+    const pending = indexed.filter(s=>!s.confirmed);
     if(confirmed.length){
-      html += `<div class="item-meta" style="margin-bottom:4px;">BEKRÄFTAD SPECIFIKATION</div><div class="checklist" style="margin-top:0;">`;
-      confirmed.forEach(s=>{ html += `<label style="color:var(--ink);"><span style="width:15px;display:inline-block;">✓</span><span>${esc(s.text)}</span></label>`; });
+      html += `<div class="item-meta" style="margin-bottom:4px;">BEKRÄFTAD SPECIFIKATION</div><div class="cklist-wrap">`;
+      confirmed.forEach(s=>{
+        html += `<div class="cklist-row">
+          <label style="color:var(--ink);"><span style="width:15px;display:inline-block;">✓</span><span>${esc(s.text)}</span></label>
+          <div class="cklist-actions">
+            <button onclick="editSpec('${id}',${s.idx})" title="Redigera">✎</button>
+            <button onclick="removeSpec('${id}',${s.idx})" title="Ta bort">✕</button>
+          </div>
+        </div>`;
+      });
       html += `</div>`;
     }
     if(pending.length){
-      html += `<div class="item-meta" style="margin:10px 0 4px;">FÖRESLAGNA DELAR (obekräftade — granska innan de sparas)</div><div class="checklist" style="margin-top:0;">`;
+      html += `<div class="item-meta" style="margin:10px 0 4px;">FÖRESLAGNA DELAR (obekräftade — granska och redigera innan du bockar av)</div><div class="cklist-wrap">`;
       pending.forEach(s=>{
-        html += `<label><input type="checkbox" onchange="confirmSpec('${id}',${s.idx},this.checked)"><span>${esc(s.text)}</span></label> <span class="pill ghost" style="margin-left:6px;" onclick="removeSpec('${id}',${s.idx})">ta bort</span>`;
+        html += `<div class="cklist-row">
+          <label><input type="checkbox" onchange="confirmSpec('${id}',${s.idx},this.checked)"><span>${esc(s.text)}</span></label>
+          <div class="cklist-actions">
+            <button onclick="editSpec('${id}',${s.idx})" title="Redigera">✎</button>
+            <button onclick="removeSpec('${id}',${s.idx})" title="Ta bort">✕</button>
+          </div>
+        </div>`;
       });
       html += `</div>`;
     }
@@ -1104,6 +1158,13 @@ function removeFromArray(path, idx){
 }
 function confirmSpec(id, idx, done){
   db.ref(`equipment/${id}/specs/${idx}/confirmed`).set(done);
+}
+function editSpec(id, idx){
+  const e = state.equipment[id]; if(!e) return;
+  const current = (e.specs||[])[idx]; if(!current) return;
+  const text = prompt('Redigera:', current.text);
+  if(text === null || !text.trim()) return;
+  db.ref(`equipment/${id}/specs/${idx}/text`).set(text.trim());
 }
 function removeSpec(id, idx){
   removeFromArray('equipment/'+id+'/specs', idx);
